@@ -1,0 +1,29 @@
+{
+  "entities": {
+    "bets": {
+      "title": "User Bet",
+      "description": "A ticket containing the numbers, type, draw selection, play unit details and calculation outcomes of a single bet.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique bet ID" },
+        "drawDate": { "type": "string", "description": "Target draw date in YYYY-MM-DD" },
+        "numbers": { "type": "array", "description": "Array of numbers selected" },
+        "type": { "type": "string", "description": "Bet type: single, multiple, banker" },
+        "bankers": { "type": "array", "description": "Optional banker numbers (膽)" },
+        "legs": { "type": "array", "description": "Optional legs numbers (腳)" },
+        "isPartialUnit": { "type": "boolean", "description": "Whether it is a $5 partial unit cost" },
+        "importDate": { "type": "string", "description": "Date imported/created" },
+        "source": { "type": "string", "description": "Import source: manual, csv, excel, ocr" },
+        "ticketImageUrl": { "type": "string", "description": "Optional source screenshot image URL" },
+        "userId": { "type": "string", "description": "User ID of creator" }
+      },
+      "required": ["id", "drawDate", "numbers", "type", "importDate", "source", "userId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/bets/{betId}": {
+      "schema": "bets",
+      "description": "Subcollection of bets under each user"
+    }
+  }
+}

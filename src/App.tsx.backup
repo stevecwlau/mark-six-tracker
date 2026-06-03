@@ -1,0 +1,478 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { useState, useEffect } from 'react';
+import { AppSettings, MarkSixDraw, UserBet } from './types';
+import { translations } from './translations';
+import { playSound } from './utils/soundEffects';
+
+import LatestDrawTab from './components/LatestDrawTab';
+import BetVaultTab from './components/BetVaultTab';
+import DrawHistoryTab from './components/DrawHistoryTab';
+import SettingsTab from './components/SettingsTab';
+
+import { Activity, Cloud, LogIn, LogOut, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+
+// Default initial state settings
+const DEFAULT_SETTINGS: AppSettings = {
+  theme: 'dark',
+  language: 'zh', // Defualt to zh (繁體中文) per requested scope branding
+  defaultUnitCost: 10,
+  soundEffects: true,
+  liveMode: true // Always use live data
+};
+
+export default function App() {
+  const [settings, setSettings] = useState<AppSettings>(() => {
+    const saved = localStorage.getItem('m6_settings');
+    if (saved) {
+      try { return { ...DEFAULT_SETTINGS, ...JSON.parse(saved) }; } catch { return DEFAULT_SETTINGS; }
+    }
+    return DEFAULT_SETTINGS;
+  });
+
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [userBets, setUserBets] = useState<UserBet[]>(() => {
+    const saved = localStorage.getItem('m6_local_bets');
+    if (saved) {
+      try { return JSON.parse(saved); } catch { return []; }
+    }
+    return [];
+  });
+
+  const [historicalDraws, setHistoricalDraws] = useState<MarkSixDraw[]>([]);
+  const [latestDraw, setLatestDraw] = useState<MarkSixDraw | null>(null);
+  const [activeTab, setActiveTab ] = useState<'latest' | 'vault' | 'history' | 'settings'>('latest');
+
+  // Sync state message toasts
+  const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'info' | 'error' } | null>(null);
+
+  const showToast = (text: string, type: 'success' | 'info' | 'error' = 'success') => {
+    setToastMessage({ text, type });
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  // Sync settings helper
+  const handleUpdateSettings = (updated: Partial<AppSettings>) => {
+    const next = { ...settings, ...updated };
+    setSettings(next);
+    localStorage.setItem('m6_settings', JSON.stringify(next));
+
+    // Handle HTML tag class list for manual color backgrounds matching theme
+    const root = document.documentElement;
+    if (next.theme === 'light') {
+      root.classList.add('light-mode');
+    } else {
+      root.classList.remove('light-mode');
+    }
+  };
+
+  // Set default background style from initialization
+  useEffect(() => {
+    const root = document.documentElement;
+    if (settings.theme === 'light') {
+      root.classList.add('light-mode');
+    } else {
+      root.classList.remove('light-mode');
+    }
+  }, []);
+
+  // Fetch Draws from Server API Endpoint
+  const fetchHistoricalDraws = async (live: boolean) => {
+    try {
+      const res = await fetch(`/api/draws?live=${live}`);
+      if (res.ok) {
+        const payload = await res.json();
+        if (payload.draws && Array.isArray(payload.draws)) {
+          setHistoricalDraws(payload.draws);
+          setLatestDraw(payload.draws[0] || null);
+          if (payload.source === 'live') {
+            showToast(translations[settings.language].latestDraw.checkResults, 'success');
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Retrieve historical draws fail:", err);
+    }
+  };
+
+  // Reload on toggle live/simulated mode
+  useEffect(() => {
+    fetchHistoricalDraws(settings.liveMode);
+  }, [settings.liveMode]);
+
+  // Auth Subscription
+  useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        setCurrentUser(user);
+        if (user) {
+          showToast(`Logged in successfully as ${user.email}`, 'success');
+          // Cloud query bets under user-specific path
+          await syncBetsFromCloud(user.uid);
+        } else {
+          // Re-load local backup of bets
+          const savedLocal = localStorage.getItem('m6_local_bets');
+          if (savedLocal) {
+            try { setUserBets(JSON.parse(savedLocal)); } catch { setUserBets([]); }
+          }
+        }
+      });
+      return () => unsubscribe();
+    }
+  }, []);
+
+  // Sync and retrieve from Cloud
+  const syncBetsFromCloud = async (userId: string) => {
+    if (!db) return;
+    const path = `users/${userId}/bets`;
+    try {
+      const colRef = collection(db, 'users', userId, 'bets');
+      const querySnapshot = await getDocs(colRef);
+      const betsList: UserBet[] = [];
+      querySnapshot.forEach((doc) => {
+        // @ts-ignore
+        betsList.push({ id: doc.id, ...doc.data() });
+      });
+      setUserBets(betsList);
+      localStorage.setItem('m6_local_bets', JSON.stringify(betsList));
+    } catch (err) {
+      handleFirestoreError(err, OperationType.LIST, path);
+    }
+  };
+
+  // Write single bet to persistent storage (local & cloud)
+  const handleAddBet = async (betInput: Omit<UserBet, 'id' | 'importDate'>) => {
+    playSound('win', settings.soundEffects);
+    const newBet: UserBet = {
+      ...betInput,
+      id: Math.random().toString(36).substring(2, 11),
+      importDate: new Date().toISOString()
+    };
+
+    const nextBets = [newBet, ...userBets];
+    setUserBets(nextBets);
+    localStorage.setItem('m6_local_bets', JSON.stringify(nextBets));
+
+    // Cloud upload
+      const path = `users/${currentUser.uid}/bets/${newBet.id}`;
+      try {
+        await setDoc(doc(db, 'users', currentUser.uid, 'bets', newBet.id), {
+          id: newBet.id,
+          drawDate: newBet.drawDate,
+          numbers: newBet.numbers,
+          type: newBet.type,
+          bankers: newBet.bankers || null,
+          legs: newBet.legs || null,
+          isPartialUnit: newBet.isPartialUnit || null,
+          importDate: newBet.importDate,
+          source: newBet.source,
+          userId: currentUser.uid
+        });
+        showToast("Auto-synced ticket to Cloud Database", 'success');
+      } catch (err) {
+        handleFirestoreError(err, OperationType.WRITE, path);
+      }
+    } else {
+      showToast(translations[settings.language].importer.toastImportSuccess.replace('${count}', '1'), 'success');
+    }
+  };
+
+  // Bulk Import
+  const handleImportBets = async (betsInput: Omit<UserBet, 'id' | 'importDate'>[]) => {
+    playSound('win', settings.soundEffects);
+    const newBets: UserBet[] = betsInput.map(b => ({
+      ...b,
+      id: Math.random().toString(36).substring(2, 11),
+      importDate: new Date().toISOString()
+    }));
+
+    const nextBets = [...newBets, ...userBets];
+    setUserBets(nextBets);
+    localStorage.setItem('m6_local_bets', JSON.stringify(nextBets));
+
+    // Batch upload to database
+      const path = `users/${currentUser.uid}/bets`;
+      try {
+        const batch = writeBatch(db);
+        newBets.forEach((bet) => {
+          const docRef = doc(db, 'users', currentUser.uid, 'bets', bet.id);
+          batch.set(docRef, {
+            id: bet.id,
+            drawDate: bet.drawDate,
+            numbers: bet.numbers,
+            type: bet.type,
+            bankers: bet.bankers || null,
+            legs: bet.legs || null,
+            isPartialUnit: bet.isPartialUnit || null,
+            importDate: bet.importDate,
+            source: bet.source,
+            userId: currentUser.uid
+          });
+        });
+        await batch.commit();
+        showToast(`Bulk imported ${newBets.length} tickets to Cloud`, 'success');
+      } catch (err) {
+        handleFirestoreError(err, OperationType.WRITE, path);
+      }
+    } else {
+      showToast(translations[settings.language].importer.toastImportSuccess.replace('${count}', String(newBets.length)), 'success');
+    }
+  };
+
+  // Delete Bet
+  const handleDeleteBet = async (betId: string) => {
+    const nextBets = userBets.filter(b => b.id !== betId);
+    setUserBets(nextBets);
+    localStorage.setItem('m6_local_bets', JSON.stringify(nextBets));
+
+      const path = `users/${currentUser.uid}/bets/${betId}`;
+      try {
+        await deleteDoc(doc(db, 'users', currentUser.uid, 'bets', betId));
+        showToast(translations[settings.language].vault.toastDeleted, 'success');
+      } catch (err) {
+        handleFirestoreError(err, OperationType.DELETE, path);
+      }
+    } else {
+      showToast(translations[settings.language].vault.toastDeleted, 'success');
+    }
+  };
+
+  // Clear All Bets
+  const handleClearAllBets = async () => {
+    setUserBets([]);
+    localStorage.removeItem('m6_local_bets');
+
+      const path = `users/${currentUser.uid}/bets`;
+      try {
+        const batch = writeBatch(db);
+        userBets.forEach((b) => {
+          const docRef = doc(db, 'users', currentUser.uid, 'bets', b.id);
+          batch.delete(docRef);
+        });
+        await batch.commit();
+        showToast(translations[settings.language].vault.toastCleared, 'success');
+      } catch (err) {
+        handleFirestoreError(err, OperationType.DELETE, path);
+      }
+    } else {
+      showToast(translations[settings.language].vault.toastCleared, 'success');
+    }
+  };
+
+  // Roll next draw simulation on backend
+  const handleSimulateNextDraw = async () => {
+    const res = await fetch('/api/draws/generate', { method: 'POST' });
+    if (res.ok) {
+      await fetchHistoricalDraws(false);
+      showToast("Draw simulated successfully!", 'success');
+    }
+  };
+
+  // Export local backup file
+  const handleExportBackup = () => {
+    playSound('click', settings.soundEffects);
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(userBets));
+    const dlAnchorElem = document.createElement('a');
+    dlAnchorElem.setAttribute("href", dataStr);
+    dlAnchorElem.setAttribute("download", `m6_backup_${new Date().toISOString().split('T')[0]}.json`);
+    dlAnchorElem.click();
+    showToast("Exported JSON backup file", 'success');
+  };
+
+  // Restore backup
+  const handleImportBackup = (event: any) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e: any) => {
+      try {
+        const json = JSON.parse(e.target.result);
+        if (Array.isArray(json)) {
+          // Format backup and push
+          await handleImportBets(json);
+          showToast("Successfully restored data backup!", 'success');
+        } else {
+          showToast("Format mismatch of json backup file", 'error');
+        }
+      } catch (err) {
+        showToast("Restore failed: parse error.", 'error');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  // System full factory reset
+  const handleFullWipeReset = async () => {
+    // Clear back-end simulated rolls
+    await fetch('/api/reset', { method: 'POST' });
+    // Local storage wipe
+    localStorage.removeItem('m6_local_bets');
+    setUserBets([]);
+    // Reload
+    await fetchHistoricalDraws(settings.liveMode);
+  };
+
+  const currentLanguage = translations[settings.language];
+
+  return (
+    <div className={`min-h-screen transition-all duration-300 ${settings.theme === 'dark' ? 'bg-[#0A0A0B] text-[#E2E2E2]' : 'bg-gray-50 text-gray-900'}`}>
+      <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+        
+        {/* Top Header Bar */}
+        <header className={`flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6 ${settings.theme === 'dark' ? 'border-[#222226]' : 'border-gray-250 pb-6'}`}>
+          <div className="flex items-center space-x-4 select-none">
+            <div className="w-10 h-10 bg-[#10B981] rounded-lg flex items-center justify-center font-bold text-black text-lg">
+              6
+            </div>
+            <div>
+              <h1 className="text-lg font-bold leading-tight uppercase tracking-wider">
+                <span>{currentLanguage.title}</span>
+                <span className="text-[10px] bg-[#10B981]/10 text-[#10B981] px-2 py-0.5 rounded ml-2 font-bold tracking-wider uppercase border border-[#10B981]/25">PRO v1.2</span>
+              </h1>
+              <p className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">六合彩追踪器 • BILINGUAL EDITION</p>
+            </div>
+          </div>
+
+          {/* User Auth Cloud Connection Status top deck */}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Sync Badge */}
+              <Cloud className="w-4 h-4 shrink-0" />
+            </div>
+
+            {/* Google Authentication Section */}
+              currentUser ? (
+                <div className={`flex items-center space-x-2 p-1 border rounded-xl ${settings.theme === 'dark' ? 'bg-[#111114]/80 border-[#222226]' : 'bg-white border-gray-300'}`}>
+                  <span className="text-[11px] font-bold px-2.5 text-gray-400">
+                    {currentUser.email?.split('@')[0]}
+                  </span>
+                  <button
+                    onClick={() => {
+                      playSound('reset', settings.soundEffects);
+                      signOut(auth);
+                      setCurrentUser(null);
+                    }}
+                    title={currentLanguage.firebase.logout}
+                    className="p-1.5 bg-black/20 hover:bg-rose-500/10 text-rose-455 hover:text-rose-400 rounded-lg cursor-pointer transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={async () => {
+                    playSound('click', settings.soundEffects);
+                    try { 
+                      await signInWithGoogle(); 
+                    } catch (err: any) { 
+                      if (err?.code === 'auth/popup-closed-by-user' || err?.code === 'auth/cancelled-popup-request') {
+                        showToast(settings.language === 'zh' ? "Google 登入視窗已被關閉。" : "Sign-in popup is closed.", 'info');
+                      } else {
+                        showToast("Sign in required popup blocks or cancelled.", 'error'); 
+                      }
+                    }
+                  }}
+                  className="flex items-center space-x-1.5 text-xs font-bold text-black bg-[#10B981] hover:bg-[#10B981]/80 px-4 py-2 rounded-xl transition-colors cursor-pointer uppercase"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>{currentLanguage.firebase.login}</span>
+                </button>
+              )
+            )}
+          </div>
+        </header>
+
+        {/* Tab Navigation Menu pills */}
+        <nav className={`flex flex-wrap p-1 border rounded-2xl max-w-fit select-none ${settings.theme === 'dark' ? 'bg-[#111114] border-[#222226]' : 'bg-gray-200/50 border-gray-300'}`}>
+          {(['latest', 'vault', 'history', 'settings'] as const).map((tab) => (
+            <button
+              key={tab}
+              id={`tab-${tab}`}
+              onClick={() => {
+                playSound('click', settings.soundEffects);
+                setActiveTab(tab);
+              }}
+              className={`px-4.5 py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                activeTab === tab 
+                  ? 'bg-[#10B981] text-black shadow-md shadow-[#10B981]/10 font-extrabold' 
+                  : `${settings.theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`
+              }`}
+            >
+              {currentLanguage.tabs[tab]}
+            </button>
+          ))}
+        </nav>
+
+        {/* Dynamic Display Panels */}
+        <main className="pb-12">
+          {activeTab === 'latest' && (
+            <LatestDrawTab
+              latestDraw={latestDraw}
+              userBets={userBets}
+              settings={settings}
+            />
+          )}
+
+          {activeTab === 'vault' && (
+            <BetVaultTab
+              userBets={userBets}
+              historicalDraws={historicalDraws}
+              settings={settings}
+              onAddBet={handleAddBet}
+              onDeleteBet={handleDeleteBet}
+              onClearAllBets={handleClearAllBets}
+              onImportBets={handleImportBets}
+            />
+          )}
+
+          {activeTab === 'history' && (
+            <DrawHistoryTab
+              historicalDraws={historicalDraws}
+              userBets={userBets}
+              settings={settings}
+            />
+          )}
+
+          {activeTab === 'settings' && (
+            <SettingsTab
+              settings={settings}
+              userBets={userBets}
+              historicalDraws={historicalDraws}
+              onUpdateSettings={handleUpdateSettings}
+              onSimulateNextDraw={handleSimulateNextDraw}
+              onExportBackup={handleExportBackup}
+              onImportBackup={handleImportBackup}
+              onFullReset={handleFullWipeReset}
+            />
+          )}
+        </main>
+
+
+      </div>
+
+      {/* Floating System Sync Toast Alerts */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className={`fixed bottom-6 right-6 p-4 rounded-2xl shadow-xl flex items-center space-x-3 z-50 border max-w-sm select-none ${toastMessage.type === 'success' ? 'bg-[#18231c] border-emerald-500/30 text-emerald-400' : toastMessage.type === 'error' ? 'bg-[#2a1b1b] border-rose-500/30 text-rose-450' : 'bg-[#121c24] border-blue-500/35 text-blue-400'}`}
+          >
+            {toastMessage.type === 'success' ? (
+              <CheckCircle2 className="w-5 h-5 shrink-0" />
+            ) : toastMessage.type === 'error' ? (
+              <AlertCircle className="w-5 h-5 shrink-0" />
+            ) : (
+              <RefreshCw className="w-5 h-5 shrink-0 animate-spin" />
+            )}
+            <p className="text-xs font-bold leading-normal">{toastMessage.text}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
