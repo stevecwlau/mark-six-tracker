@@ -10,7 +10,30 @@
       37,
       45
     ],
-    "extra": 20
+    "extra": 20,
+    "jackpot": "HK$ 8,000,000",
+    "nextJackpot": "HK$11,000,000",
+    "nextDeadline": "2026-06-04 21:15",
+    "prizes": [
+      {
+        "name": "1st",
+        "amount": "HK$13,945,690",
+        "winners": "0.5",
+        "totalFund": "HK$6,972,845"
+      },
+      {
+        "name": "2nd",
+        "amount": "HK$1,394,569",
+        "winners": "2",
+        "totalFund": "HK$2,789,138"
+      },
+      {
+        "name": "3rd",
+        "amount": "HK$139,457",
+        "winners": "85",
+        "totalFund": "HK$11,853,845"
+      }
+    ]
   },
   {
     "id": "26/058",

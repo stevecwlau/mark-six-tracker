@@ -72,7 +72,7 @@ export default function LatestDrawTab({ latestDraw, userBets, settings }: Latest
     <div className="space-y-6">
       {/* Celebration Banner if Won */}
       {currentDrawBets.length > 0 && totalWinnings > 0 && (
-        <motion.div
+                  <motion.div className="self-end"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="p-3 select-none flex items-center justify-between bg-gradient-to-r from-yellow-500/20 via-orange-500/20 to-yellow-500/20 border-2 border-yellow-500/50 rounded-2xl shadow-lg shadow-yellow-500/5"
@@ -118,10 +118,10 @@ export default function LatestDrawTab({ latestDraw, userBets, settings }: Latest
 
         {/* Balls Deck */}
         <div className="space-y-4 mb-8">
-          <div className="flex flex-wrap justify-center items-center gap-3 md:gap-4 select-none">
+          <div className="flex flex-wrap justify-center items-end gap-3 md:gap-4 select-none">
             {latestDraw.numbers.map((num, idx) => (
               <div key={idx} className="flex flex-col items-center">
-                <motion.div
+                          <motion.div className="self-end"
                   initial={{ scale: 0.1, rotate: -180 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ type: "spring", stiffness: 100, delay: idx * 0.08 }}
@@ -140,16 +140,16 @@ export default function LatestDrawTab({ latestDraw, userBets, settings }: Latest
 
             {/* Extra number ball (Special) */}
             <div className="flex flex-col items-center">
-              <motion.div
+                        <motion.div className="self-end"
                 initial={{ scale: 0.1, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: "spring", stiffness: 100, delay: 0.5 }}
-                className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center rounded-full text-white text-lg sm:text-xl md:text-2xl font-black shadow-lg shadow-black/30 ${getBallBgColor(latestDraw.extraNumber)}`}
+                className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center rounded-full text-white text-lg sm:text-xl md:text-2xl font-black shadow-lg shadow-black/30 ${getBallBgColor(latestDraw.extra ?? latestDraw.extraNumber)}`}
               >
-                {latestDraw.extraNumber}
+                {latestDraw.extra ?? latestDraw.extraNumber}
               </motion.div>
               <span className="text-[10px] text-yellow-500 font-bold tracking-tight mt-1 uppercase">
-                {t.latestDraw.extraNumber}
+                特別號碼
               </span>
             </div>
           </div>
@@ -158,7 +158,7 @@ export default function LatestDrawTab({ latestDraw, userBets, settings }: Latest
         {/* Next Draw info card deck */}
         <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 rounded-2xl ${settings.theme === 'dark' ? 'bg-black/40 border border-white/5' : 'bg-gray-50 border border-gray-200'}`}>
           <div>
-            <div className="flex justify-between items-end mb-2">
+            <div className="flex justify-between items-center mb-2">
               <p className="text-xs text-gray-500 font-semibold">Top Prizes</p>
               <span className="text-xs text-gray-500 font-semibold">Unit Prize (Winning Unit)</span>
             </div>
@@ -256,7 +256,7 @@ export default function LatestDrawTab({ latestDraw, userBets, settings }: Latest
 
               <AnimatePresence>
                 {showTickets && (
-                  <motion.div
+                            <motion.div className="self-end"
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
@@ -309,7 +309,7 @@ export default function LatestDrawTab({ latestDraw, userBets, settings }: Latest
                           {/* Individual evaluation */}
                           <div className="sm:text-right border-t sm:border-t-0 border-gray-800 pt-2 sm:pt-0">
                             <p className="text-[10px] text-gray-400 font-semibold">{t.latestDraw.checkResults}</p>
-                            <div className="flex sm:flex-col items-baseline sm:items-end justify-between gap-2 mt-0.5">
+                            <div className="flex sm:flex-col items-baseline sm:items-center justify-between gap-2 mt-0.5">
                               <span className="text-xs text-gray-550 block">Cost / 投注: HK$ {results?.investment}</span>
                               <span className={`text-sm font-black font-mono ${results?.winnings > 0 ? 'text-yellow-400' : 'text-gray-500'}`}>
                                 Won: HK$ {results?.winnings?.toLocaleString('en-US', { minimumFractionDigits: 1 })}

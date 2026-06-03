@@ -52,6 +52,38 @@ try {
 
 // ==================== AUTO SCRAPER ====================
 
+
+function httpsGet(url) {
+  console.log('[httpsGet] Starting request to', url);
+  return new Promise((resolve, reject) => {
+    const req = require('https').get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Referer': 'https://www.google.com/'
+      }
+    }, (res) => {
+      console.log('[httpsGet] Got response status:', res.statusCode);
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        console.log('[httpsGet] Response ended, length:', data.length);
+        resolve(data);
+      });
+    });
+    req.on('error', (err) => {
+      console.log('[httpsGet] Request error:', err.message);
+      reject(err);
+    });
+    req.setTimeout(15000, () => {
+      console.log('[httpsGet] Request timed out');
+      req.destroy();
+      reject(new Error('Request timeout'));
+    });
+  });
+}
+
 async function scrapeAndUpdate() {
   try {
     const controller = new AbortController();
@@ -147,6 +179,7 @@ async function scrapeAndUpdate() {
 
 // Run once on startup, then every 30 mins
 scrapeAndUpdate();
+scrapeJackpotInfo().then(info => { console.log("[Jackpot] Separate scraper ready"); });
 setInterval(scrapeAndUpdate, SCRAPE_INTERVAL);
 console.log("[Scraper] Auto-scraper enabled (every 30 mins)");
 
@@ -230,14 +263,14 @@ app.get('/api/health', (req, res) => {
 // 2. Fetch Draw Results (Includes both Simulated / Dynamic Live queries, with error handling)
 app.get('/api/draws', async (req, res) => {
   try {
-    // Trigger automatic background check & sync with PILIO for any new draws since last check
-    await checkAndScrapeLatest();
-
-    // Default return simulation draws (which contains the complete scraped database)
-    // Make sure it is always sorted descending
-    historicalDraws.sort((a, b) => b.date.localeCompare(a.date));
-    res.json({ source: 'simulated', draws: historicalDraws });
-  } catch (error: any) {
+    const scrapedPath = path.join(process.cwd(), 'src/data/scraped_draws.json');
+    let draws = [];
+    if (fs.existsSync(scrapedPath)) {
+      draws = JSON.parse(fs.readFileSync(scrapedPath, 'utf8'));
+    }
+    draws.sort((a, b) => b.date.localeCompare(a.date));
+    res.json({ source: 'live', draws });
+  } catch (error) {
     res.status(500).json({ error: error.message || 'Failed to retrieve draw results' });
   }
 });
@@ -444,3 +477,71 @@ async function startServer() {
 
 startServer();
 
+
+async function scrapeJackpotInfo() {
+  try {
+    const html = await httpsGet('https://mark6.app/now');
+    const $ = cheerio.load(html);
+
+    let nextJackpot = 'HK$ 8,000,000';
+    let nextDeadline = 'TBD';
+
+    const jackpotText = $('body').text();
+
+    // === Jackpot parsing ===
+    const jpMatch = jackpotText.match(/(?:下期估計彩金|Estimated Next Jackpot)[^：:]*[：:]\s*([\d千百萬]+)/);
+    if (jpMatch) {
+      const raw = jpMatch[1];
+      let amount = 0;
+      const qianMatch = raw.match(/(\d+)千/);
+      if (qianMatch) amount += parseInt(qianMatch[1]) * 10000000;
+      const baiMatch = raw.match(/(\d+)百/);
+      if (baiMatch) amount += parseInt(baiMatch[1]) * 1000000;
+      const wanMatch = raw.match(/(\d+)萬/);
+      if (wanMatch && !qianMatch && !baiMatch) amount += parseInt(wanMatch[1]) * 10000;
+
+      if (amount > 0) nextJackpot = 'HK$' + amount.toLocaleString();
+    }
+
+    // === Cut-off Time parsing + conversion ===
+    const dlMatch = jackpotText.match(/(?:下期截止售票|Cut-off Time)[^：:]*[：:]\s*(.+?)(?:\n|$)/);
+    if (dlMatch) {
+      const raw = dlMatch[1].trim();
+
+      // Convert Chinese format: 2026年6月4日下午9時15分 → 2026-06-04 21:15
+      const dateMatch = raw.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+      const timeMatch = raw.match(/(\d{1,2})時(\d{1,2})分/);
+      const isPM = raw.includes('下午') || raw.includes('pm');
+
+      if (dateMatch && timeMatch) {
+        let hour = parseInt(timeMatch[1]);
+        if (isPM && hour < 12) hour += 12;
+        if (!isPM && hour === 12) hour = 0;
+
+        const y = dateMatch[1];
+        const m = dateMatch[2].padStart(2, '0');
+        const d = dateMatch[3].padStart(2, '0');
+        const hh = hour.toString().padStart(2, '0');
+        const mm = timeMatch[2].padStart(2, '0');
+
+        nextDeadline = `${y}-${m}-${d} ${hh}:${mm}`;
+      } else {
+        nextDeadline = raw; // fallback to raw if parsing fails
+      }
+    }
+
+    if (historicalDraws.length > 0) {
+      historicalDraws[0].nextJackpot = nextJackpot;
+      historicalDraws[0].nextDeadline = nextDeadline;
+
+      const scrapedPath = path.join(process.cwd(), 'src', 'data', 'scraped_draws.json');
+      fs.writeFileSync(scrapedPath, JSON.stringify(historicalDraws, null, 2));
+      console.log(`[Jackpot Scraper] Updated → jackpot=${nextJackpot}, deadline=${nextDeadline}`);
+    }
+
+    return { nextJackpot, nextDeadline };
+  } catch (e: any) {
+    console.log('[Jackpot Scraper] Failed:', e.message);
+    return { nextJackpot: 'HK$ 8,000,000', nextDeadline: 'TBD' };
+  }
+}

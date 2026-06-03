@@ -236,9 +236,9 @@ export default function DrawHistoryTab({ historicalDraws, userBets, settings }: 
                     ))}
                     <span className="text-gray-650 font-bold ml-0.5 inline-block">+</span>
                     <span
-                      className={`w-6 h-6 rounded-full text-[10px] text-white font-black flex items-center justify-center ${getBallBgColor(draw.extraNumber)}`}
+                      className={`w-6 h-6 rounded-full text-[10px] text-white font-black flex items-center justify-center ${getBallBgColor(draw.extraNumber ?? draw.extra)}`}
                     >
-                      {draw.extraNumber}
+                      {draw.extraNumber ?? draw.extra}
                     </span>
                   </div>
 
@@ -297,7 +297,7 @@ export default function DrawHistoryTab({ historicalDraws, userBets, settings }: 
                               ? [...(bet.bankers || []), ...(bet.legs || [])] 
                               : (bet.numbers || []);
                             const matchRegCount = allNumbers.filter(n => draw.numbers.includes(n)).length;
-                            const matchExtCount = allNumbers.includes(draw.extraNumber) ? 1 : 0;
+                            const matchExtCount = allNumbers.includes(draw.extraNumber ?? draw.extra) ? 1 : 0;
                             const bankers = bet.bankers || [];
                             const legs = bet.legs || [];
                             
