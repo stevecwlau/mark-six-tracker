@@ -87,15 +87,14 @@ function httpsGet(url) {
 async function scrapeAndUpdate() {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
-
-    const res = await fetch("https://en.lottolyzer.com/home/hong-kong/mark-six", {
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    
+    const res = await fetch("https://lottery.hk/en/mark-six/results/", {
       signal: controller.signal,
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "en-US,en;q=0.9",
-        "Referer": "https://www.google.com/"
       }
     });
     clearTimeout(timeout);
@@ -108,72 +107,58 @@ async function scrapeAndUpdate() {
     const html = await res.text();
     const $ = require("cheerio").load(html);
 
-    // Extract draw ID
-    const drawId = $("h1, h2, .draw-header").first().text().match(/Draw\s*(\d+\/\d+)/i)?.[1];
-    if (!drawId) return;
-
-    // Extract winning numbers
-    const numbers: number[] = [];
-    $('.ball, [class*="ball"], .winning-number').each((_, el) => {
-      const n = parseInt($(el).text().trim(), 10);
-      if (n > 0 && n <= 49) numbers.push(n);
-    });
-
-    // Extract extra number
-    let extra = 0;
-    $('.extra, .special, [class*="extra"]').each((_, el) => {
-      const n = parseInt($(el).text().trim(), 10);
-      if (n > 0 && n <= 49) extra = n;
-    });
-
-    // Extract prize breakdown table
-    const prizes: any[] = [];
-    $('table tr').each((_, row) => {
-      const cells = $(row).find('td, th').map((i, c) => $(c).text().trim()).get();
+    // Parse table rows (skip header and month separator rows)
+    $("table tr").each((_, row) => {
+      const cells = $(row).find("td, th").map((i, c) => $(c).text().trim()).get();
       
-      // Look for rows containing prize information
-      if (cells.length >= 3) {
-        const firstCell = cells[0].toLowerCase();
-        if (firstCell.includes('div') || firstCell.includes('1st') || firstCell.includes('2nd') || firstCell.includes('3rd') || firstCell.includes('prize')) {
-          prizes.push({
-            name: cells[0].replace(/Division|Div/i, '').trim(),
-            amount: cells[1] || '',
-            winners: cells[2] || ''
-          });
+      // Valid draw row: first cell looks like "26/060"
+      if (cells.length >= 3 && /^\d{2}\/\d{3}$/.test(cells[0])) {
+        const drawId = cells[0];
+        const dateRaw = cells[1]; // DD/MM/YYYY
+        const numbersRaw = cells[2];
+
+        // Parse numbers (they are separated by whitespace/newlines)
+        const allNumbers = numbersRaw
+          .split(/\s+/)
+          .map(n => parseInt(n.trim(), 10))
+          .filter(n => n > 0 && n <= 49);
+
+        if (allNumbers.length < 7) return; // need 6 + extra
+
+        const numbers = allNumbers.slice(0, 6);
+        const extra = allNumbers[6];
+
+        // Convert date DD/MM/YYYY → YYYY-MM-DD
+        const [dd, mm, yyyy] = dateRaw.split("/");
+        const isoDate = `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
+
+        // Check if we already have this draw
+        const scrapedPath = path.join(process.cwd(), "src", "data", "scraped_draws.json");
+        let existing: any[] = [];
+        if (fs.existsSync(scrapedPath)) {
+          existing = JSON.parse(fs.readFileSync(scrapedPath, "utf8"));
+        }
+
+        if (!existing.some((d: any) => d.id === drawId)) {
+          const newDraw = {
+            id: drawId,
+            date: isoDate,
+            numbers,
+            extra,
+            jackpot: "HK$ 8,000,000",
+            nextJackpot: "HK$ 8,000,000",
+            nextDeadline: "TBD",
+          };
+
+          existing.unshift(newDraw);
+          fs.writeFileSync(scrapedPath, JSON.stringify(existing, null, 2));
+          console.log(`[Scraper] New draw ${drawId} saved (${isoDate})`);
+          historicalDraws = existing;
         }
       }
     });
-
-    // Only save if we have meaningful data
-    if (numbers.length >= 6) {
-      const scrapedPath = path.join(process.cwd(), 'src', 'data', 'scraped_draws.json');
-      let existing: any[] = [];
-      
-      if (fs.existsSync(scrapedPath)) {
-        existing = JSON.parse(fs.readFileSync(scrapedPath, 'utf8'));
-      }
-
-      // Check if this draw already exists
-      if (!existing.some((d: any) => d.id === drawId)) {
-        const newDraw = {
-          id: drawId,
-          date: new Date().toISOString().split('T')[0],
-          numbers: numbers.slice(0, 6),
-          extra: extra || numbers[6] || 0,
-          jackpot: prizes[0]?.amount || 'HK$ 8,000,000',
-          nextJackpot: 'HK$ 8,000,000',
-          nextDeadline: 'TBD',
-          prizes: prizes.length > 0 ? prizes : undefined
-        };
-
-        existing.unshift(newDraw);
-        fs.writeFileSync(scrapedPath, JSON.stringify(existing, null, 2));
-        console.log(`[Scraper] New draw ${drawId} saved with ${prizes.length} prize tiers`);
-        historicalDraws = existing;
-      }
-    }
   } catch (e: any) {
-    console.log('[Scraper] Skipped or failed:', e.message);
+    console.log("[Scraper] Skipped or failed:", e.message);
   }
 }
 
