@@ -392,8 +392,8 @@ function App() {
                 setCurrentUser(user);
                 showToast("Logged in", "success");
               }}
-              onSignUp={async (email, password) => {
-                await signUp(email, password);
+              onSignUp={async (email, password, username) => {
+                await signUp(email, password, username);
                 showToast("Check email to confirm", "success");
               }}
             />

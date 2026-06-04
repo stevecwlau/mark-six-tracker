@@ -70,8 +70,37 @@ export default function BetVaultTab({
   const [overlayMode, setOverlayMode] = useState<"choice" | "login" | "signup" | "forgot">("login");
   const [overlayEmail, setOverlayEmail] = useState("");
   const [overlayPassword, setOverlayPassword] = useState("");
+  const [overlayUsername, setOverlayUsername] = useState("");
+  const [overlayConfirmPassword, setOverlayConfirmPassword] = useState("");
 
   const [overlayError, setOverlayError] = useState("");
+  const getFriendlyError = (error: any, mode: "login" | "signup" | "forgot") => {
+    const msg = (error?.message || "").toLowerCase();
+    const code = (error?.error_code || error?.code || "").toLowerCase();
+
+    if (mode === "signup") {
+      if (
+        msg.includes("already registered") ||
+        msg.includes("user already registered") ||
+        code === "invalid_credentials" ||
+        msg.includes("invalid login credentials")
+      ) {
+        return "This email is already registered. Please log in instead.";
+      }
+      if (msg.includes("password")) {
+        return "Password must be at least 6 characters.";
+      }
+      if (msg.includes("rate limit")) {
+        return "Too many attempts. Please try again later.";
+      }
+      return "Signup failed. Please check your details.";
+    }
+
+    if (msg.includes("invalid login credentials") || code === "invalid_credentials") {
+      return "Invalid email or password.";
+    }
+    return error?.message || "Login failed";
+  };
 
 
 
@@ -365,20 +394,59 @@ export default function BetVaultTab({
                   {overlayMode === "signup" ? "Create Account" : "Sign In"}
                 </div>
 
+                {overlayMode === "signup" && (
+                  <input 
+                    type="text" 
+                    placeholder="Username" 
+                    value={overlayUsername} 
+                    onChange={e => setOverlayUsername(e.target.value)} 
+                    className="w-full bg-[#0A0A0B] border border-[#222226] text-sm px-4 py-3 rounded-2xl" 
+                  />
+                )}
                 <input type="email" placeholder="Email" value={overlayEmail} onChange={e => setOverlayEmail(e.target.value)} className="w-full bg-[#0A0A0B] border border-[#222226] text-sm px-4 py-3 rounded-2xl" />
                 <input type="password" placeholder="Password" value={overlayPassword} onChange={e => setOverlayPassword(e.target.value)} className="w-full bg-[#0A0A0B] border border-[#222226] text-sm px-4 py-3 rounded-2xl" />
+                {overlayMode === "signup" && (
+                  <input 
+                    type="password" 
+                    placeholder="Confirm Password" 
+                    value={overlayConfirmPassword} 
+                    onChange={e => setOverlayConfirmPassword(e.target.value)} 
+                    className="w-full bg-[#0A0A0B] border border-[#222226] text-sm px-4 py-3 rounded-2xl" 
+                  />
+                )}
 
                 {overlayError && <div className="text-rose-400 text-xs font-bold">{overlayError}</div>}
                 <button onClick={async () => {
-                  if (!overlayEmail || !overlayPassword) { setOverlayError("Email and password required"); return; }
+                  if (overlayMode === "signup") {
+                    if (!overlayUsername || !overlayEmail || !overlayPassword || !overlayConfirmPassword) {
+                      setOverlayError("All fields are required");
+                      return;
+                    }
+                    if (overlayPassword !== overlayConfirmPassword) {
+                      setOverlayError("Passwords do not match");
+                      return;
+                    }
+                  } else {
+                    if (!overlayEmail || !overlayPassword) {
+                      setOverlayError("Email and password required");
+                      return;
+                    }
+                  }
                   try {
-                    await onLogin(overlayEmail, overlayPassword);
+                    if (overlayMode === "signup") {
+                      await onSignUp(overlayEmail, overlayPassword, overlayUsername);
+                    } else {
+                      await onLogin(overlayEmail, overlayPassword);
+                    }
                     setOverlayMode("login");
                     setOverlayEmail("");
                     setOverlayPassword("");
+                    setOverlayUsername("");
+                    setOverlayConfirmPassword("");
                     setOverlayError("");
                   } catch (err: any) {
-                    setOverlayError(err?.message || "Login failed");
+                    const friendlyMessage = getFriendlyError(err, overlayMode);
+                    setOverlayError(friendlyMessage);
                   }
                 }} className="w-full py-3.5 text-sm font-bold bg-[#10B981] hover:bg-[#10B981]/90 text-black rounded-2xl mt-2">{overlayMode === "signup" ? "Signup" : "LOGIN"}</button>
                 {overlayMode === "login" ? (
