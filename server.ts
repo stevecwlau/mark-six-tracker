@@ -86,15 +86,17 @@ function httpsGet(url) {
 
 async function scrapeAndUpdate() {
   try {
+    console.log("[Scraper] scrapeAndUpdate() called (mark6.app/now)");
+
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 20000);
-    
-    const res = await fetch("https://lottery.hk/en/mark-six/results/", {
+
+    const res = await fetch("https://mark6.app/now", {
       signal: controller.signal,
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Language": "zh-HK,zh;q=0.9,en;q=0.8",
       }
     });
     clearTimeout(timeout);
@@ -105,60 +107,72 @@ async function scrapeAndUpdate() {
     }
 
     const html = await res.text();
+    console.log(`[Scraper] Fetched HTML length: ${html.length}`);
+
     const $ = require("cheerio").load(html);
 
-    // Parse table rows (skip header and month separator rows)
-    $("table tr").each((_, row) => {
-      const cells = $(row).find("td, th").map((i, c) => $(c).text().trim()).get();
-      
-      // Valid draw row: first cell looks like "26/060"
-      if (cells.length >= 3 && /^\d{2}\/\d{3}$/.test(cells[0])) {
-        const drawId = cells[0];
-        const dateRaw = cells[1]; // DD/MM/YYYY
-        const numbersRaw = cells[2];
+    const latestSection = $(".w3-half").first();
+    if (!latestSection.length) {
+      console.log("[Scraper] Could not find .w3-half section");
+      return;
+    }
 
-        // Parse numbers (they are separated by whitespace/newlines)
-        const allNumbers = numbersRaw
-          .split(/\s+/)
-          .map(n => parseInt(n.trim(), 10))
-          .filter(n => n > 0 && n <= 49);
+    const drawInfo = latestSection.find("p.w3-center").first().text().trim();
+    const drawMatch = drawInfo.match(/第\s*(\d+)\s*期\s*([\d/]+)/);
+    
+    if (!drawMatch) {
+      console.log("[Scraper] Could not parse draw info:", drawInfo);
+      return;
+    }
 
-        if (allNumbers.length < 7) return; // need 6 + extra
+    const drawNum = drawMatch[1].padStart(3, "0");
+    const dateRaw = drawMatch[2];
+    const drawId = `26/${drawNum}`;
 
-        const numbers = allNumbers.slice(0, 6);
-        const extra = allNumbers[6];
+    const [dd, mm, yyyy] = dateRaw.split("/");
+    const isoDate = `${yyyy}-${mm.padStart(2,"0")}-${dd.padStart(2,"0")}`;
 
-        // Convert date DD/MM/YYYY → YYYY-MM-DD
-        const [dd, mm, yyyy] = dateRaw.split("/");
-        const isoDate = `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
-
-        // Check if we already have this draw
-        const scrapedPath = path.join(process.cwd(), "src", "data", "scraped_draws.json");
-        let existing: any[] = [];
-        if (fs.existsSync(scrapedPath)) {
-          existing = JSON.parse(fs.readFileSync(scrapedPath, "utf8"));
-        }
-
-        if (!existing.some((d: any) => d.id === drawId)) {
-          const newDraw = {
-            id: drawId,
-            date: isoDate,
-            numbers,
-            extra,
-            jackpot: "HK$ 8,000,000",
-            nextJackpot: "HK$ 8,000,000",
-            nextDeadline: "TBD",
-          };
-
-          existing.unshift(newDraw);
-          fs.writeFileSync(scrapedPath, JSON.stringify(existing, null, 2));
-          console.log(`[Scraper] New draw ${drawId} saved (${isoDate})`);
-          historicalDraws = existing;
-        }
-      }
+    const balls = [];
+    latestSection.find("span.ball").each((_, el) => {
+      const n = parseInt($(el).text().trim(), 10);
+      if (!isNaN(n) && n > 0 && n <= 49) balls.push(n);
     });
-  } catch (e: any) {
-    console.log("[Scraper] Skipped or failed:", e.message);
+
+    if (balls.length < 7) {
+      console.log(`[Scraper] Not enough balls for ${drawId} (got ${balls.length})`);
+      return;
+    }
+
+    const numbers = balls.slice(0, 6);
+    const extra = balls[6];
+
+    const scrapedPath = require("path").join(process.cwd(), "src", "data", "scraped_draws.json");
+    let existing = [];
+    if (require("fs").existsSync(scrapedPath)) {
+      existing = JSON.parse(require("fs").readFileSync(scrapedPath, "utf8"));
+    }
+
+    if (existing.some(d => d.id === drawId)) {
+      console.log(`[Scraper] Latest draw ${drawId} already exists`);
+      return;
+    }
+
+    const newDraw = {
+      id: drawId,
+      date: isoDate,
+      numbers,
+      extra,
+      jackpot: "HK$ 8,000,000",
+      nextJackpot: "HK$ 8,000,000",
+      nextDeadline: "TBD",
+    };
+
+    existing.unshift(newDraw);
+    require("fs").writeFileSync(scrapedPath, JSON.stringify(existing, null, 2));
+    console.log(`[Scraper] New draw ${drawId} saved (${isoDate})`);
+    historicalDraws = existing;
+  } catch (e) {
+    console.log("[Scraper] Failed:", e.message);
   }
 }
 
