@@ -67,7 +67,7 @@ export default function BetVaultTab({
   const isLoggedIn = !!currentUser;
 
   // Overlay login state
-  const [overlayMode, setOverlayMode] = useState<"choice" | "login">("choice");
+  const [overlayMode, setOverlayMode] = useState<"choice" | "login" | "signup" | "forgot">("login");
   const [overlayEmail, setOverlayEmail] = useState("");
   const [overlayPassword, setOverlayPassword] = useState("");
 
@@ -323,7 +323,7 @@ export default function BetVaultTab({
                 <AlertCircle className="w-6 h-6 text-rose-400" />
               </div>
               <h3 className="text-xl font-black tracking-tight">Login required to use the Bet Vault</h3>
-              <p className="text-sm text-gray-400 mt-2">Please sign in or create an account to access betting features.</p>
+              <p className="text-sm text-gray-400 mt-2">Please sign in or create an account.</p>
             </div>
 
             {overlayMode === "choice" ? (
@@ -373,18 +373,22 @@ export default function BetVaultTab({
                   if (!overlayEmail || !overlayPassword) { setOverlayError("Email and password required"); return; }
                   try {
                     await onLogin(overlayEmail, overlayPassword);
-                    setOverlayMode("choice");
+                    setOverlayMode("login");
                     setOverlayEmail("");
                     setOverlayPassword("");
                     setOverlayError("");
                   } catch (err: any) {
                     setOverlayError(err?.message || "Login failed");
                   }
-                }} className="w-full py-3.5 text-sm font-bold bg-[#10B981] hover:bg-[#10B981]/90 text-black rounded-2xl mt-2">LOGIN</button>
-                <div className="flex justify-between text-xs pt-1">
-                  <button onClick={() => { setOverlayMode("choice"); setOverlayError(""); }} className="text-gray-400 hover:text-gray-300">Back</button>
-                  <button onClick={() => { setOverlayMode("forgot"); setOverlayError(""); }} className="text-[#10B981] hover:underline">Forgot Password?</button>
-                </div>
+                }} className="w-full py-3.5 text-sm font-bold bg-[#10B981] hover:bg-[#10B981]/90 text-black rounded-2xl mt-2">{overlayMode === "signup" ? "Signup" : "LOGIN"}</button>
+                {overlayMode === "login" ? (
+                  <div className="flex justify-between text-xs pt-1">
+                    <button onClick={() => { setOverlayMode("signup"); setOverlayError(""); }} className="text-[#10B981] hover:underline">Not a member? Signup now</button>
+                    <button onClick={() => { setOverlayMode("forgot"); setOverlayError(""); }} className="text-[#10B981] hover:underline">Forgot Password?</button>
+                  </div>
+                ) : (
+                  <button onClick={() => { setOverlayMode("login"); setOverlayError(""); }} className="w-full text-xs text-gray-400 hover:text-gray-300 mt-1">Back to Login</button>
+                )}
               </div>
             )}
           </div>
