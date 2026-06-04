@@ -5,7 +5,7 @@
 
 export const translations = {
   en: {
-    title: "Mark Six Tracker",
+    title: "Mark Six Hunter",
     subtitle: "Professional Lottery Manager & Performance Analyzer",
     tabs: {
       latest: "Latest Draw",
@@ -137,7 +137,7 @@ export const translations = {
     }
   },
   zh: {
-    title: "六合彩邊度中",
+    title: "六合彩獵人",
     subtitle: "專業六合彩管理同埋投注數據分析系統",
     tabs: {
       latest: "最新開彩",

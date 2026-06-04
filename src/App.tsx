@@ -306,15 +306,13 @@ function App() {
         {/* Top Header Bar */}
         <header className={`flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6 ${settings.theme === 'dark' ? 'border-[#222226]' : 'border-gray-250 pb-6'}`}>
           <div className="flex items-center space-x-4 select-none">
-            <div className="w-10 h-10 bg-[#10B981] rounded-lg flex items-center justify-center font-bold text-black text-lg">
-              6
-            </div>
+            <img src="/logo.png" alt="Mark Six Hunter Logo" className="w-10 h-10 rounded-lg object-contain" />
             <div>
               <h1 className="text-lg font-bold leading-tight uppercase tracking-wider">
                 <span>{currentLanguage.title}</span>
                 <span className="text-[10px] bg-[#10B981]/10 text-[#10B981] px-2 py-0.5 rounded ml-2 font-bold tracking-wider uppercase border border-[#10B981]/25">BETA</span>
               </h1>
-              <p className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">六合彩追踪器 • BILINGUAL EDITION</p>
+              <p className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">六合彩獵人 • BILINGUAL EDITION</p>
             </div>
           </div>
 

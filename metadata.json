@@ -1,5 +1,5 @@
 {
-  "name": "Mark Six Tracker",
+  "name": "Mark Six Hunter",
   "description": "Modern bilingual lottery tracker with OCR ticket imports, automatic winning checks, and detailed stats.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
