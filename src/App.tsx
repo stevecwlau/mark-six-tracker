@@ -335,7 +335,7 @@ function App() {
 
           {/* Center: Tab Navigation (centered on desktop) */}
           <nav className={`flex flex-wrap p-1 border rounded-2xl max-w-fit select-none mx-auto md:mx-0 order-last md:order-none ${settings.theme === 'dark' ? 'bg-[#111114] border-[#222226]' : 'bg-gray-200/50 border-gray-300'}`}>
-            {(['latest', 'vault', 'history'] as const).map((tab) => (
+            {(['latest', 'history', 'vault'] as const).map((tab) => (
               <button
                 key={tab}
                 id={`tab-${tab}`}
