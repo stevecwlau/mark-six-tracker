@@ -329,7 +329,7 @@ function App() {
                 <span>{currentLanguage.title}</span>
                 <span className="text-[10px] bg-[#10B981]/10 text-[#10B981] px-2 py-0.5 rounded ml-2 font-bold tracking-wider uppercase border border-[#10B981]/25">BETA</span>
               </h1>
-              <p className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">六合彩獵人 • BILINGUAL EDITION</p>
+              <p className="text-[10px] text-gray-500 font-semibold tracking-wider">{settings.language === 'en' ? 'Your Mark Six Tracking Companion' : '你的六合彩追蹤拍檔'}</p>
             </div>
           </div>
 
