@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { UserBet, MarkSixDraw, AppSettings } from '../types';
 import { translations } from '../translations';
 import { calculateBetCost, evaluateBet } from '../utils/lotterySolver';
@@ -57,12 +57,23 @@ export default function BetVaultTab({
   onAddBet,
   onDeleteBet,
   onClearAllBets,
-  onImportBets
+  onImportBets,
+  onLogin,
+  onSignUp
 }: BetVaultTabProps) {
   const { language, soundEffects } = settings;
   const t = translations[language];
 
   const isLoggedIn = !!currentUser;
+
+  // Overlay login state
+  const [overlayMode, setOverlayMode] = useState<"choice" | "login">("choice");
+  const [overlayEmail, setOverlayEmail] = useState("");
+  const [overlayPassword, setOverlayPassword] = useState("");
+
+  const [overlayError, setOverlayError] = useState("");
+
+
 
   // AI-Assisted selection: analyze last 10 draws or fallback to empty
   const hottestStats = useMemo(() => {
@@ -302,7 +313,86 @@ export default function BetVaultTab({
   const lifetimeROI = lifetimeCost > 0 ? ((lifetimeWinnings - lifetimeCost) / lifetimeCost) * 100 : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="relative">
+      {!isLoggedIn && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
+          <div className={`relative z-10 w-full max-w-md mx-4 p-8 rounded-3xl border shadow-2xl ${settings.theme === "dark" ? "bg-[#111114] border-[#222226]" : "bg-white border-gray-200"}`}>
+            <div className="text-center mb-6">
+              <div className="mx-auto w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center mb-4">
+                <AlertCircle className="w-6 h-6 text-rose-400" />
+              </div>
+              <h3 className="text-xl font-black tracking-tight">Login required to use the Bet Vault</h3>
+              <p className="text-sm text-gray-400 mt-2">Please sign in or create an account to access betting features.</p>
+            </div>
+
+            {overlayMode === "choice" ? (
+              <div className="space-y-3">
+                <button onClick={() => { setOverlayMode("login"); setOverlayError(""); }} className="w-full py-3.5 text-sm font-bold bg-[#10B981] hover:bg-[#10B981]/90 text-black rounded-2xl transition-all">LOGIN</button>
+                <button onClick={() => { setOverlayMode("signup"); setOverlayError(""); }} className="w-full py-3.5 text-sm font-bold border border-white/20 hover:bg-white/5 rounded-2xl transition-all">SIGN UP</button>
+              </div>
+            ) : overlayMode === "forgot" ? (
+              <div className="space-y-4">
+                <div className="text-center text-sm font-bold mb-1">Reset Password</div>
+                <input 
+                  type="email" 
+                  placeholder="Enter your email" 
+                  value={overlayEmail} 
+                  onChange={e => setOverlayEmail(e.target.value)} 
+                  className="w-full bg-[#0A0A0B] border border-[#222226] text-sm px-4 py-3 rounded-2xl" 
+                />
+                {overlayError && <div className="text-rose-400 text-xs font-bold">{overlayError}</div>}
+                <button 
+                  onClick={async () => {
+                    if (!overlayEmail) { setOverlayError("Email is required"); return; }
+                    try {
+                      const { error } = await (await import("../supabase")).supabase.auth.resetPasswordForEmail(overlayEmail);
+                      if (error) throw error;
+                      setOverlayError("Password reset email sent! Check your inbox.");
+                    } catch (err: any) {
+                      setOverlayError(err?.message || "Failed to send reset email");
+                    }
+                  }} 
+                  className="w-full py-3.5 text-sm font-bold bg-[#10B981] hover:bg-[#10B981]/90 text-black rounded-2xl mt-2"
+                >
+                  SEND RESET LINK
+                </button>
+                <button onClick={() => { setOverlayMode("login"); setOverlayError(""); }} className="w-full text-xs text-gray-400 hover:text-gray-300">Back to Login</button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="text-center text-sm font-bold mb-1">
+                  {overlayMode === "signup" ? "Create Account" : "Sign In"}
+                </div>
+
+                <input type="email" placeholder="Email" value={overlayEmail} onChange={e => setOverlayEmail(e.target.value)} className="w-full bg-[#0A0A0B] border border-[#222226] text-sm px-4 py-3 rounded-2xl" />
+                <input type="password" placeholder="Password" value={overlayPassword} onChange={e => setOverlayPassword(e.target.value)} className="w-full bg-[#0A0A0B] border border-[#222226] text-sm px-4 py-3 rounded-2xl" />
+
+                {overlayError && <div className="text-rose-400 text-xs font-bold">{overlayError}</div>}
+                <button onClick={async () => {
+                  if (!overlayEmail || !overlayPassword) { setOverlayError("Email and password required"); return; }
+                  try {
+                    await onLogin(overlayEmail, overlayPassword);
+                    setOverlayMode("choice");
+                    setOverlayEmail("");
+                    setOverlayPassword("");
+                    setOverlayError("");
+                  } catch (err: any) {
+                    setOverlayError(err?.message || "Login failed");
+                  }
+                }} className="w-full py-3.5 text-sm font-bold bg-[#10B981] hover:bg-[#10B981]/90 text-black rounded-2xl mt-2">LOGIN</button>
+                <div className="flex justify-between text-xs pt-1">
+                  <button onClick={() => { setOverlayMode("choice"); setOverlayError(""); }} className="text-gray-400 hover:text-gray-300">Back</button>
+                  <button onClick={() => { setOverlayMode("forgot"); setOverlayError(""); }} className="text-[#10B981] hover:underline">Forgot Password?</button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className={`space-y-6 transition-all ${!isLoggedIn ? "blur-md pointer-events-none select-none" : ""}`}>
+
       {/* Lifetime Performance metrics deck */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className={`p-4 rounded-2xl border flex flex-col justify-between ${settings.theme === 'dark' ? 'glass-panel text-gray-100' : 'bg-white border-gray-200 text-gray-950 shadow-sm'}`}>
@@ -844,6 +934,7 @@ export default function BetVaultTab({
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

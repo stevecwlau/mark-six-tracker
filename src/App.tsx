@@ -319,14 +319,13 @@ function App() {
             </div>
           </div>
 
-                    {/* User Auth Cloud Connection Status top deck */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-3">
             <div className={`flex items-center space-x-1.5 px-3 py-1 rounded-xl text-xs font-bold ${settings.theme === "dark" ? "bg-[#111114] border border-[#222226] text-gray-400" : "bg-white border-gray-300 text-gray-600"}`}>
               <Cloud className="w-4 h-4 shrink-0" />
               <span>Local + Cloud</span>
             </div>
 
-            {currentUser ? (
+            {currentUser && (
               <div className={`flex items-center space-x-2 p-1 border rounded-xl ${settings.theme === "dark" ? "bg-[#111114]/80 border-[#222226]" : "bg-white border-gray-300"}`}>
                 <span className="text-[11px] font-bold px-2.5 text-gray-400">
                   {currentUser.email?.split("@")[0]}
@@ -340,54 +339,6 @@ function App() {
                   className="p-1.5 bg-black/20 hover:bg-rose-500/10 text-rose-400 rounded-lg cursor-pointer transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="bg-[#111114] border border-[#222226] text-sm px-3 py-1.5 rounded-xl w-40"
-                />
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="bg-[#111114] border border-[#222226] text-sm px-3 py-1.5 rounded-xl w-32"
-                />
-                <button
-                  onClick={async () => {
-                    if (!email || !password) return;
-                    try {
-                      await signIn(email, password);
-                      const user = await getCurrentUser();
-                      setCurrentUser(user);
-                      showToast("Logged in", "success");
-                    } catch (err) {
-                      showToast("Login failed", "error");
-                    }
-                  }}
-                  className="flex items-center space-x-1.5 text-xs font-bold text-black bg-[#10B981] hover:bg-[#10B981]/80 px-4 py-2 rounded-xl transition-colors cursor-pointer uppercase"
-                >
-                  <LogIn className="w-4 h-4" />
-                  <span>Login</span>
-                </button>
-                <button
-                  onClick={async () => {
-                    if (!email || !password) return;
-                    try {
-                      await signUp(email, password);
-                      showToast("Check email to confirm", "success");
-                    } catch (err) {
-                      showToast("Sign up failed", "error");
-                    }
-                  }}
-                  className="flex items-center space-x-1.5 text-xs font-bold text-white bg-[#374151] hover:bg-[#4b5563] px-4 py-2 rounded-xl transition-colors cursor-pointer uppercase"
-                >
-                  <span>Sign Up</span>
                 </button>
               </div>
             )}
@@ -435,6 +386,16 @@ function App() {
               onDeleteBet={handleDeleteBet}
               onClearAllBets={handleClearAllBets}
               onImportBets={handleImportBets}
+              onLogin={async (email, password) => {
+                await signIn(email, password);
+                const user = await getCurrentUser();
+                setCurrentUser(user);
+                showToast("Logged in", "success");
+              }}
+              onSignUp={async (email, password) => {
+                await signUp(email, password);
+                showToast("Check email to confirm", "success");
+              }}
             />
           )}
 
