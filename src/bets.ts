@@ -5,6 +5,7 @@ export async function saveBetToSupabase(bet: UserBet, userId: string) {
   const { error } = await supabase
     .from('bets')
     .insert({
+      id: bet.id,
       user_id: userId,
       draw_date: bet.drawDate,
       numbers: bet.numbers,

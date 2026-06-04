@@ -110,36 +110,29 @@ function App() {
     fetchHistoricalDraws(settings.liveMode);
   }, [settings.liveMode]);
 
-  // Auth Subscription (Supabase)
+  // Auth Subscription (Supabase) - Clean version
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const user = session?.user ?? null;
       setCurrentUser(user);
+
       if (user) {
         showToast(`Logged in as ${user.email}`, 'success');
-        // Load bets from Supabase and merge with local
         try {
           const cloudBets = await loadBetsFromSupabase(user.id);
-          const localBets: UserBet[] = JSON.parse(localStorage.getItem('m6_local_bets') || '[]');
-          const merged = [...cloudBets];
-          const cloudIds = new Set(cloudBets.map(b => b.id));
-          for (const localBet of localBets) {
-            if (!cloudIds.has(localBet.id)) {
-              merged.push(localBet);
-            }
-          }
-          setUserBets(merged);
-          localStorage.setItem('m6_local_bets', JSON.stringify(merged));
+          setUserBets(cloudBets);
+          localStorage.setItem('m6_local_bets', JSON.stringify(cloudBets));
         } catch (err) {
           console.error("Failed to load bets from Supabase:", err);
+          setUserBets([]);
         }
       } else {
-        const savedLocal = localStorage.getItem('m6_local_bets');
-        if (savedLocal) {
-          try { setUserBets(JSON.parse(savedLocal)); } catch { setUserBets([]); }
-        }
+        // Logged out → clear bets
+        setUserBets([]);
+        localStorage.removeItem('m6_local_bets');
       }
     });
+
     return () => subscription.unsubscribe();
   }, []);
 
@@ -165,30 +158,58 @@ function App() {
   // Write single bet to persistent storage (local & cloud)
     // Write single bet (local only for now)
   const handleAddBet = async (betInput) => {
+    if (!currentUser) {
+      showToast("Please log in to save bets", "error");
+      return;
+    }
+
     playSound("win", settings.soundEffects);
+
     const newBet = {
       ...betInput,
       id: Math.random().toString(36).substring(2, 11),
       importDate: new Date().toISOString()
     };
-    const nextBets = [newBet, ...userBets];
-    setUserBets(nextBets);
-    localStorage.setItem("m6_local_bets", JSON.stringify(nextBets));
-    showToast(translations[settings.language].importer.toastImportSuccess.replace("${count}", "1"), "success");
+
+    try {
+      await saveBetToSupabase(newBet, currentUser.id);
+      const nextBets = [newBet, ...userBets];
+      setUserBets(nextBets);
+      localStorage.setItem("m6_local_bets", JSON.stringify(nextBets));
+      showToast(translations[settings.language].importer.toastImportSuccess.replace("${count}", "1"), "success");
+    } catch (err: any) {
+      console.error("Failed to save bet to Supabase:", err);
+      showToast(err?.message || "Failed to save bet", "error");
+    }
   };
 
-  // Bulk Import (local only)
+  // Bulk Import (Supabase)
   const handleImportBets = async (betsInput) => {
+    if (!currentUser) {
+      showToast("Please log in to import bets", "error");
+      return;
+    }
+
     playSound("win", settings.soundEffects);
+
     const newBets = betsInput.map(b => ({
       ...b,
       id: Math.random().toString(36).substring(2, 11),
       importDate: new Date().toISOString()
     }));
-    const nextBets = [...newBets, ...userBets];
-    setUserBets(nextBets);
-    localStorage.setItem("m6_local_bets", JSON.stringify(nextBets));
-    showToast(translations[settings.language].importer.toastImportSuccess.replace("${count}", String(newBets.length)), "success");
+
+    try {
+      for (const bet of newBets) {
+        await saveBetToSupabase(bet, currentUser.id);
+      }
+      const nextBets = [...newBets, ...userBets];
+      setUserBets(nextBets);
+      localStorage.setItem("m6_local_bets", JSON.stringify(nextBets));
+      showToast(translations[settings.language].importer.toastImportSuccess.replace("${count}", String(newBets.length)), "success");
+    } catch (err: any) {
+      console.error("Failed to import bets to Supabase:", err);
+      showToast(err?.message || "Failed to import some bets", "error");
+    }
   };
 
   // Delete Bet
