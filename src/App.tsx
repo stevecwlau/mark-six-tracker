@@ -12,7 +12,7 @@ import LatestDrawTab from './components/LatestDrawTab';
 import BetVaultTab from './components/BetVaultTab';
 import DrawHistoryTab from './components/DrawHistoryTab';
 
-import { Activity, Cloud, LogIn, LogOut, CheckCircle2, AlertCircle, RefreshCw, User, Moon, Sun, Languages, Volume2, VolumeX } from 'lucide-react';
+import { Activity, Cloud, LogIn, LogOut, CheckCircle2, AlertCircle, RefreshCw, User, Moon, Sun, Languages, Volume2, VolumeX, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from './supabase';
 import { signUp, signIn, signOut, getCurrentUser } from './auth';
@@ -50,6 +50,7 @@ function App() {
   const [historicalDraws, setHistoricalDraws] = useState<MarkSixDraw[]>([]);
   const [latestDraw, setLatestDraw] = useState<MarkSixDraw | null>(null);
   const [activeTab, setActiveTab ] = useState<'latest' | 'vault' | 'history'>('latest');
+  const [showAccountModal, setShowAccountModal] = useState(false);
 
   // Sync state message toasts
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'info' | 'error' } | null>(null);
@@ -387,8 +388,11 @@ function App() {
               </button>
             </div>
 
-            {/* User Profile Card */}
-            <div className={`flex items-center gap-3 px-3 py-1.5 rounded-2xl border text-sm ${settings.theme === 'dark' ? 'bg-[#111114] border-[#222226]' : 'bg-white border-gray-200'}`}>
+            {/* User Profile Card (clickable) */}
+            <div
+              onClick={() => currentUser && setShowAccountModal(true)}
+              className={`flex items-center gap-3 px-3 py-1.5 rounded-2xl border text-sm transition-all ${currentUser ? 'cursor-pointer hover:border-[#10B981]/40 hover:shadow-sm' : ''} ${settings.theme === 'dark' ? 'bg-[#111114] border-[#222226]' : 'bg-white border-gray-200'}`}
+            >
               <div className={`w-8 h-8 rounded-full flex items-center justify-center overflow-hidden ${currentUser ? 'ring-2 ring-[#10B981]/30' : 'grayscale opacity-60'}`}>
                 {currentUser ? (
                   <div className="w-full h-full bg-[#10B981] flex items-center justify-center text-black text-xs font-bold">
@@ -487,6 +491,118 @@ function App() {
             <p className="text-xs font-bold leading-normal">{toastMessage.text}</p>
           </motion.div>
         )}
+
+      {/* Account Settings Modal */}
+      <AnimatePresence>
+        {showAccountModal && currentUser && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 20 }}
+              transition={{ duration: 0.2 }}
+              className={`w-full max-w-md rounded-3xl border p-6 shadow-2xl ${settings.theme === 'dark' ? 'bg-[#111114] border-[#222226]' : 'bg-white border-gray-200'}`}
+            >
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h3 className="text-lg font-bold">Account Settings</h3>
+                  <p className="text-xs text-gray-500 mt-0.5">Manage your profile and security</p>
+                </div>
+                <button onClick={() => setShowAccountModal(false)} className="p-2 hover:bg-gray-800/60 rounded-xl transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* User Info */}
+              <div className={`flex items-center gap-3 p-3 rounded-2xl mb-6 ${settings.theme === 'dark' ? 'bg-[#1a1a1d]' : 'bg-gray-50'}`}>
+                <div className="w-10 h-10 rounded-full bg-[#10B981] flex items-center justify-center text-black font-bold">
+                  {currentUser.user_metadata?.username?.[0]?.toUpperCase() || currentUser.email?.[0]?.toUpperCase() || 'U'}
+                </div>
+                <div>
+                  <div className="font-bold">{currentUser.user_metadata?.username || currentUser.email?.split('@')[0]}</div>
+                  <div className="text-xs text-gray-500">{currentUser.email}</div>
+                </div>
+              </div>
+
+              {/* Change Username */}
+              <div className="mb-5">
+                <label className="text-xs font-bold text-gray-400 block mb-1.5">Username</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    defaultValue={currentUser.user_metadata?.username || ''}
+                    id="account-username"
+                    className={`flex-1 rounded-xl px-3 py-2 text-sm border focus:outline-none focus:border-[#10B981] ${settings.theme === 'dark' ? 'bg-[#1a1a1d] border-[#222226]' : 'bg-white border-gray-200'}`}
+                  />
+                  <button
+                    onClick={async () => {
+                      const input = document.getElementById('account-username') as HTMLInputElement;
+                      if (input?.value) {
+                        await handleUpdateUsername(input.value);
+                        setShowAccountModal(false);
+                      }
+                    }}
+                    className="px-4 py-2 bg-[#10B981] text-black text-xs font-bold rounded-xl hover:bg-[#0ea46f]"
+                  >
+                    Update
+                  </button>
+                </div>
+              </div>
+
+              {/* Change Password */}
+              <div className="mb-6">
+                <label className="text-xs font-bold text-gray-400 block mb-1.5">Change Password</label>
+                <div className="space-y-2">
+                  <input type="password" id="account-current-pw" placeholder="Current password" className={`w-full rounded-xl px-3 py-2 text-sm border focus:outline-none focus:border-[#10B981] ${settings.theme === 'dark' ? 'bg-[#1a1a1d] border-[#222226]' : 'bg-white border-gray-200'}`} />
+                  <input type="password" id="account-new-pw" placeholder="New password" className={`w-full rounded-xl px-3 py-2 text-sm border focus:outline-none focus:border-[#10B981] ${settings.theme === 'dark' ? 'bg-[#1a1a1d] border-[#222226]' : 'bg-white border-gray-200'}`} />
+                  <button
+                    onClick={async () => {
+                      const current = (document.getElementById('account-current-pw') as HTMLInputElement)?.value;
+                      const newPw = (document.getElementById('account-new-pw') as HTMLInputElement)?.value;
+                      if (current && newPw) {
+                        await handleUpdatePassword(current, newPw);
+                        setShowAccountModal(false);
+                      }
+                    }}
+                    className="w-full py-2 bg-[#10B981] text-black text-xs font-bold rounded-xl hover:bg-[#0ea46f]"
+                  >
+                    Update Password
+                  </button>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex flex-col gap-2 pt-4 border-t border-[#222226]">
+                <button
+                  onClick={async () => {
+                    if (confirm('Are you sure you want to sign out?')) {
+                      await signOut();
+                      setCurrentUser(null);
+                      setShowAccountModal(false);
+                    }
+                  }}
+                  className="w-full py-2.5 text-sm font-bold rounded-xl border border-[#222226] hover:bg-[#1a1a1d]"
+                >
+                  Sign Out
+                </button>
+                <button
+                  onClick={async () => {
+                    const pw = prompt('Enter your password to permanently delete your account:');
+                    if (pw) {
+                      await handleDeleteAccount(pw);
+                      setShowAccountModal(false);
+                    }
+                  }}
+                  className="w-full py-2.5 text-sm font-bold text-rose-400 hover:text-rose-300 rounded-xl border border-rose-500/30 hover:bg-rose-500/10"
+                >
+                  Delete Account
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       </AnimatePresence>
     </div>
 
