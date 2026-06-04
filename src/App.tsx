@@ -11,7 +11,6 @@ import { playSound } from './utils/soundEffects';
 import LatestDrawTab from './components/LatestDrawTab';
 import BetVaultTab from './components/BetVaultTab';
 import DrawHistoryTab from './components/DrawHistoryTab';
-import SettingsTab from './components/SettingsTab';
 
 import { Activity, Cloud, LogIn, LogOut, CheckCircle2, AlertCircle, RefreshCw, User, Moon, Sun, Languages, Volume2, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -50,7 +49,7 @@ function App() {
 
   const [historicalDraws, setHistoricalDraws] = useState<MarkSixDraw[]>([]);
   const [latestDraw, setLatestDraw] = useState<MarkSixDraw | null>(null);
-  const [activeTab, setActiveTab ] = useState<'latest' | 'vault' | 'history' | 'settings'>('latest');
+  const [activeTab, setActiveTab ] = useState<'latest' | 'vault' | 'history'>('latest');
 
   // Sync state message toasts
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'info' | 'error' } | null>(null);
@@ -402,7 +401,7 @@ function App() {
 
         {/* Tab Navigation Menu pills */}
         <nav className={`flex flex-wrap p-1 border rounded-2xl max-w-fit select-none ${settings.theme === 'dark' ? 'bg-[#111114] border-[#222226]' : 'bg-gray-200/50 border-gray-300'}`}>
-          {(['latest', 'vault', 'history', 'settings'] as const).map((tab) => (
+          {(['latest', 'vault', 'history'] as const).map((tab) => (
             <button
               key={tab}
               id={`tab-${tab}`}
@@ -462,18 +461,6 @@ function App() {
             />
           )}
 
-          {activeTab === 'settings' && (
-            <SettingsTab
-              settings={settings}
-              userBets={userBets}
-              historicalDraws={historicalDraws}
-              onUpdateSettings={handleUpdateSettings}
-              onSimulateNextDraw={handleSimulateNextDraw}
-              onExportBackup={handleExportBackup}
-              onImportBackup={handleImportBackup}
-              onFullReset={handleFullWipeReset}
-            />
-          )}
         </main>
 
 
