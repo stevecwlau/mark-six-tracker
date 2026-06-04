@@ -13,12 +13,11 @@ import BetVaultTab from './components/BetVaultTab';
 import DrawHistoryTab from './components/DrawHistoryTab';
 import SettingsTab from './components/SettingsTab';
 
-import { Activity, Cloud, LogIn, LogOut, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Activity, Cloud, LogIn, LogOut, CheckCircle2, AlertCircle, RefreshCw, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from './supabase';
 import { signUp, signIn, signOut, getCurrentUser } from './auth';
 import { saveBetToSupabase, loadBetsFromSupabase, deleteBetFromSupabase } from './bets';
-import { User } from '@supabase/supabase-js';
 
 // Default initial state settings
 const DEFAULT_SETTINGS: AppSettings = {
@@ -313,35 +312,45 @@ function App() {
             <div>
               <h1 className="text-lg font-bold leading-tight uppercase tracking-wider">
                 <span>{currentLanguage.title}</span>
-                <span className="text-[10px] bg-[#10B981]/10 text-[#10B981] px-2 py-0.5 rounded ml-2 font-bold tracking-wider uppercase border border-[#10B981]/25">PRO v1.2</span>
+                <span className="text-[10px] bg-[#10B981]/10 text-[#10B981] px-2 py-0.5 rounded ml-2 font-bold tracking-wider uppercase border border-[#10B981]/25">BETA</span>
               </h1>
               <p className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">六合彩追踪器 • BILINGUAL EDITION</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className={`flex items-center space-x-1.5 px-3 py-1 rounded-xl text-xs font-bold ${settings.theme === "dark" ? "bg-[#111114] border border-[#222226] text-gray-400" : "bg-white border-gray-300 text-gray-600"}`}>
-              <Cloud className="w-4 h-4 shrink-0" />
-              <span>Local + Cloud</span>
-            </div>
-
-            {currentUser && (
-              <div className={`flex items-center space-x-2 p-1 border rounded-xl ${settings.theme === "dark" ? "bg-[#111114]/80 border-[#222226]" : "bg-white border-gray-300"}`}>
-                <span className="text-[11px] font-bold px-2.5 text-gray-400">
-                  {currentUser.email?.split("@")[0]}
+            {/* User Profile Card */}
+            <div className={`flex items-center gap-3 px-3 py-1.5 rounded-2xl border text-sm ${settings.theme === 'dark' ? 'bg-[#111114] border-[#222226]' : 'bg-white border-gray-200'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center overflow-hidden ${currentUser ? 'ring-2 ring-[#10B981]/30' : 'grayscale opacity-60'}`}>
+                {currentUser ? (
+                  <div className="w-full h-full bg-[#10B981] flex items-center justify-center text-black text-xs font-bold">
+                    {currentUser.user_metadata?.username?.[0]?.toUpperCase() || currentUser.email?.[0]?.toUpperCase() || 'U'}
+                  </div>
+                ) : (
+                  <User className="w-4 h-4 text-gray-400" />
+                )}
+              </div>
+              <div className="flex flex-col leading-tight">
+                <span className={`text-xs font-bold ${currentUser ? 'text-[#E2E2E2]' : 'text-gray-400'}`}>
+                  {currentUser?.user_metadata?.username || currentUser?.email?.split('@')[0] || 'Guest'}
                 </span>
+                {!currentUser && (
+                  <span className="text-[10px] text-gray-500">Not signed in</span>
+                )}
+              </div>
+              {currentUser && (
                 <button
                   onClick={async () => {
                     playSound("reset", settings.soundEffects);
                     await signOut();
                     setCurrentUser(null);
                   }}
-                  className="p-1.5 bg-black/20 hover:bg-rose-500/10 text-rose-400 rounded-lg cursor-pointer transition-colors"
+                  className="ml-1 p-1.5 hover:bg-rose-500/10 text-rose-400 rounded-lg transition-colors"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-3.5 h-3.5" />
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </header>
 
