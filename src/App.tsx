@@ -13,7 +13,7 @@ import BetVaultTab from './components/BetVaultTab';
 import DrawHistoryTab from './components/DrawHistoryTab';
 import SettingsTab from './components/SettingsTab';
 
-import { Activity, Cloud, LogIn, LogOut, CheckCircle2, AlertCircle, RefreshCw, User } from 'lucide-react';
+import { Activity, Cloud, LogIn, LogOut, CheckCircle2, AlertCircle, RefreshCw, User, Moon, Sun, Languages, Volume2, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from './supabase';
 import { signUp, signIn, signOut, getCurrentUser } from './auth';
@@ -73,6 +73,23 @@ function App() {
     } else {
       root.classList.remove('light-mode');
     }
+  };
+
+  const handleThemeToggle = () => {
+    playSound('click', settings.soundEffects);
+    const nextTheme = settings.theme === 'dark' ? 'light' : 'dark';
+    handleUpdateSettings({ theme: nextTheme });
+  };
+
+  const handleLanguageToggle = () => {
+    playSound('click', settings.soundEffects);
+    const nextLang = settings.language === 'en' ? 'zh' : 'en';
+    handleUpdateSettings({ language: nextLang });
+  };
+
+  const handleSoundToggle = (val: boolean) => {
+    handleUpdateSettings({ soundEffects: val });
+    playSound('click', val);
   };
 
   // Set default background style from initialization
@@ -317,6 +334,37 @@ function App() {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Header Quick Toggles */}
+            <div className="flex items-center gap-1 mr-1">
+              {/* Theme Toggle */}
+              <button
+                onClick={handleThemeToggle}
+                className={`p-2 rounded-xl border transition-colors cursor-pointer ${settings.theme === 'dark' ? 'border-white/5 bg-black/40 text-gray-450 hover:text-[#10B981]' : 'border-gray-200 bg-gray-50 text-gray-600 hover:text-[#10B981]'}`}
+                title="Toggle theme"
+              >
+                {settings.theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+              </button>
+
+              {/* Language Toggle */}
+              <button
+                onClick={handleLanguageToggle}
+                className="flex items-center gap-1 px-2.5 py-1.5 border border-emerald-500/25 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-400 text-xs font-bold rounded-xl cursor-pointer transition-colors"
+                title="Toggle language"
+              >
+                <Languages className="w-3.5 h-3.5" />
+                <span>{settings.language === 'en' ? '中' : 'EN'}</span>
+              </button>
+
+              {/* Sound Toggle */}
+              <button
+                onClick={() => handleSoundToggle(!settings.soundEffects)}
+                className="p-2 rounded-xl border border-gray-850 bg-gray-950/40 text-gray-400 hover:text-emerald-400 transition-colors cursor-pointer"
+                title="Toggle sound effects"
+              >
+                {settings.soundEffects ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+              </button>
+            </div>
+
             {/* User Profile Card */}
             <div className={`flex items-center gap-3 px-3 py-1.5 rounded-2xl border text-sm ${settings.theme === 'dark' ? 'bg-[#111114] border-[#222226]' : 'bg-white border-gray-200'}`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center overflow-hidden ${currentUser ? 'ring-2 ring-[#10B981]/30' : 'grayscale opacity-60'}`}>
