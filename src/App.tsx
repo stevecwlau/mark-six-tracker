@@ -321,6 +321,7 @@ function App() {
         
         {/* Top Header Bar */}
         <header className={`flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6 ${settings.theme === 'dark' ? 'border-[#222226]' : 'border-gray-250 pb-6'}`}>
+          {/* Left: Logo + Title */}
           <div className="flex items-center space-x-4 select-none">
             <img src="/logo.png" alt="Mark Six Hunter Logo" className="w-10 h-10 rounded-lg object-contain" />
             <div>
@@ -332,6 +333,28 @@ function App() {
             </div>
           </div>
 
+          {/* Center: Tab Navigation (centered on desktop) */}
+          <nav className={`flex flex-wrap p-1 border rounded-2xl max-w-fit select-none mx-auto md:mx-0 order-last md:order-none ${settings.theme === 'dark' ? 'bg-[#111114] border-[#222226]' : 'bg-gray-200/50 border-gray-300'}`}>
+            {(['latest', 'vault', 'history'] as const).map((tab) => (
+              <button
+                key={tab}
+                id={`tab-${tab}`}
+                onClick={() => {
+                  playSound('click', settings.soundEffects);
+                  setActiveTab(tab);
+                }}
+                className={`px-4.5 py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                  activeTab === tab 
+                    ? 'bg-[#10B981] text-black shadow-md shadow-[#10B981]/10 font-extrabold' 
+                    : `${settings.theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`
+                }`}
+              >
+                {currentLanguage.tabs[tab]}
+              </button>
+            ))}
+          </nav>
+
+          {/* Right: Toggles + User Profile */}
           <div className="flex items-center gap-3">
             {/* Header Quick Toggles */}
             <div className="flex items-center gap-1 mr-1">
@@ -398,27 +421,6 @@ function App() {
             </div>
           </div>
         </header>
-
-        {/* Tab Navigation Menu pills */}
-        <nav className={`flex flex-wrap p-1 border rounded-2xl max-w-fit select-none ${settings.theme === 'dark' ? 'bg-[#111114] border-[#222226]' : 'bg-gray-200/50 border-gray-300'}`}>
-          {(['latest', 'vault', 'history'] as const).map((tab) => (
-            <button
-              key={tab}
-              id={`tab-${tab}`}
-              onClick={() => {
-                playSound('click', settings.soundEffects);
-                setActiveTab(tab);
-              }}
-              className={`px-4.5 py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
-                activeTab === tab 
-                  ? 'bg-[#10B981] text-black shadow-md shadow-[#10B981]/10 font-extrabold' 
-                  : `${settings.theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`
-              }`}
-            >
-              {currentLanguage.tabs[tab]}
-            </button>
-          ))}
-        </nav>
 
         {/* Dynamic Display Panels */}
         <main className="pb-12">
