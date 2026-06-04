@@ -53,41 +53,9 @@ try {
 // ==================== AUTO SCRAPER ====================
 
 
-function httpsGet(url) {
-  console.log('[httpsGet] Starting request to', url);
-  return new Promise((resolve, reject) => {
-    const req = require('https').get(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Referer': 'https://www.google.com/'
-      }
-    }, (res) => {
-      console.log('[httpsGet] Got response status:', res.statusCode);
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        console.log('[httpsGet] Response ended, length:', data.length);
-        resolve(data);
-      });
-    });
-    req.on('error', (err) => {
-      console.log('[httpsGet] Request error:', err.message);
-      reject(err);
-    });
-    req.setTimeout(15000, () => {
-      console.log('[httpsGet] Request timed out');
-      req.destroy();
-      reject(new Error('Request timeout'));
-    });
-  });
-}
 
 async function scrapeAndUpdate() {
   try {
-    console.log("[Scraper] scrapeAndUpdate() called (mark6.app/now)");
-
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 20000);
 
@@ -102,18 +70,15 @@ async function scrapeAndUpdate() {
     clearTimeout(timeout);
 
     if (!res.ok) {
-      console.log(`[Scraper] HTTP ${res.status}`);
       return;
     }
 
     const html = await res.text();
-    console.log(`[Scraper] Fetched HTML length: ${html.length}`);
 
     const $ = require("cheerio").load(html);
 
     const latestSection = $(".w3-half").first();
     if (!latestSection.length) {
-      console.log("[Scraper] Could not find .w3-half section");
       return;
     }
 
@@ -121,7 +86,6 @@ async function scrapeAndUpdate() {
     const drawMatch = drawInfo.match(/第\s*(\d+)\s*期\s*([\d/]+)/);
     
     if (!drawMatch) {
-      console.log("[Scraper] Could not parse draw info:", drawInfo);
       return;
     }
 
@@ -139,12 +103,30 @@ async function scrapeAndUpdate() {
     });
 
     if (balls.length < 7) {
-      console.log(`[Scraper] Not enough balls for ${drawId} (got ${balls.length})`);
       return;
     }
 
     const numbers = balls.slice(0, 6);
     const extra = balls[6];
+
+    // === Parse prize tiers ===
+    const prizes = [];
+    const prizeParagraphs = latestSection.find("p").toArray();
+
+    prizeParagraphs.forEach((p) => {
+      const text = $(p).text().trim();
+      // Match: 頭奬：獎金 $12,067,220 / 1.0 注中
+      const match = text.match(/(頭奬|二奬|三奬)：獎金\s*([\$\d,]+)\s*\/\s*([\d.]+)\s*注中/);
+      if (match) {
+        const tierMap = { "頭奬": "1st", "二奬": "2nd", "三奬": "3rd" };
+        prizes.push({
+          name: tierMap[match[1]] || match[1],
+          amount: match[2],
+          winners: match[3],
+        });
+      }
+    });
+
 
     const scrapedPath = require("path").join(process.cwd(), "src", "data", "scraped_draws.json");
     let existing = [];
@@ -152,8 +134,16 @@ async function scrapeAndUpdate() {
       existing = JSON.parse(require("fs").readFileSync(scrapedPath, "utf8"));
     }
 
-    if (existing.some(d => d.id === drawId)) {
-      console.log(`[Scraper] Latest draw ${drawId} already exists`);
+    const existingIndex = existing.findIndex(d => d.id === drawId);
+    if (existingIndex !== -1) {
+      // Draw exists — check if we need to add prize data
+      if (!existing[existingIndex].prizes && prizes.length > 0) {
+        existing[existingIndex].prizes = prizes;
+        existing[existingIndex].jackpot = prizes[0]?.amount || existing[existingIndex].jackpot;
+        fs.writeFileSync(scrapedPath, JSON.stringify(existing, null, 2));
+        historicalDraws = existing;
+      } else {
+      }
       return;
     }
 
@@ -162,17 +152,16 @@ async function scrapeAndUpdate() {
       date: isoDate,
       numbers,
       extra,
-      jackpot: "HK$ 8,000,000",
+      jackpot: prizes[0]?.amount || "HK$ 8,000,000",
       nextJackpot: "HK$ 8,000,000",
       nextDeadline: "TBD",
+      prizes: prizes.length > 0 ? prizes : undefined,
     };
 
     existing.unshift(newDraw);
     require("fs").writeFileSync(scrapedPath, JSON.stringify(existing, null, 2));
-    console.log(`[Scraper] New draw ${drawId} saved (${isoDate})`);
     historicalDraws = existing;
   } catch (e) {
-    console.log("[Scraper] Failed:", e.message);
   }
 }
 
@@ -180,7 +169,6 @@ async function scrapeAndUpdate() {
 scrapeAndUpdate();
 scrapeJackpotInfo().then(info => { console.log("[Jackpot] Separate scraper ready"); });
 setInterval(scrapeAndUpdate, SCRAPE_INTERVAL);
-console.log("[Scraper] Auto-scraper enabled (every 30 mins)");
 
 
 // 5-minute throttle lock for PILIO Page 1 update checks to prevent rate limits or spam
@@ -535,12 +523,10 @@ async function scrapeJackpotInfo() {
 
       const scrapedPath = path.join(process.cwd(), 'src', 'data', 'scraped_draws.json');
       fs.writeFileSync(scrapedPath, JSON.stringify(historicalDraws, null, 2));
-      console.log(`[Jackpot Scraper] Updated → jackpot=${nextJackpot}, deadline=${nextDeadline}`);
     }
 
     return { nextJackpot, nextDeadline };
   } catch (e: any) {
-    console.log('[Jackpot Scraper] Failed:', e.message);
     return { nextJackpot: 'HK$ 8,000,000', nextDeadline: 'TBD' };
   }
 }
