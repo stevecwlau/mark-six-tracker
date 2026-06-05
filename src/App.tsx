@@ -321,7 +321,7 @@ function App() {
       <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
         
         {/* Top Header Bar */}
-        <header className={`flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6 ${settings.theme === 'dark' ? 'border-[#222226]' : 'border-gray-250 pb-6'}`}>
+        <header className={`flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 border-b pb-4 md:pb-6 ${settings.theme === 'dark' ? 'border-[#222226]' : 'border-gray-250 pb-6'}`}>
           {/* Left: Logo + Title */}
           <div className="flex items-center space-x-4 select-none">
             <img src="/logo.png" alt="Mark Six Hunter Logo" className="w-10 h-10 rounded-lg object-contain" />
