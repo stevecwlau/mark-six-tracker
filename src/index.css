@@ -125,3 +125,58 @@ nav button {
 .light-mode .text-gray-400 {
   color: #6b7280 !important;
 }
+
+
+/* ============================================
+   LIGHT MODE CONTRAST IMPROVEMENTS
+   ============================================ */
+
+.light-mode {
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #475569;
+  --border: #cbd5e1;
+}
+
+/* Stronger primary text */
+.light-mode .text-gray-900,
+.light-mode .text-slate-900 {
+  color: #0f172a !important;
+}
+
+/* Better secondary text */
+.light-mode .text-gray-700 {
+  color: #334155 !important;
+}
+
+/* Improved muted text contrast */
+.light-mode .text-gray-500 {
+  color: #475569 !important;
+}
+
+.light-mode .text-gray-400 {
+  color: #64748b !important;
+}
+
+/* Better input contrast */
+.light-mode input,
+.light-mode select {
+  border-color: #94a3b8 !important;
+}
+
+/* Stronger button contrast */
+.light-mode button {
+  border-color: #94a3b8;
+}
+
+/* Better disabled state visibility */
+.light-mode button[disabled] {
+  opacity: 0.6;
+  color: #64748b !important;
+}
+
+/* Improved border visibility */
+.light-mode .border-gray-200,
+.light-mode .border-gray-300 {
+  border-color: #cbd5e1 !important;
+}
