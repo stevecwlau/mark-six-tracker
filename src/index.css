@@ -166,33 +166,33 @@
 
 @media (max-width: 640px) {
   /* Reduce overall padding on mobile */
-  .light-mode .max-w-7xl {
+  .max-w-7xl {
     padding-left: 0.75rem !important;
     padding-right: 0.75rem !important;
   }
 
   /* Smaller header on mobile */
-  .light-mode header {
+  header {
     gap: 0.75rem !important;
     padding-bottom: 1rem !important;
   }
 
-  .light-mode header img {
+  header img {
     width: 36px !important;
     height: 36px !important;
   }
 
-  .light-mode header h1 {
+  header h1 {
     font-size: 15px !important;
   }
 
   /* Make tab navigation more compact */
-  .light-mode nav {
+  nav {
     width: 100% !important;
     justify-content: center;
   }
 
-  .light-mode nav button {
+  nav button {
     padding-left: 0.75rem !important;
     padding-right: 0.75rem !important;
     padding-top: 0.5rem !important;
@@ -201,29 +201,27 @@
   }
 
   /* Tighter cards on mobile */
-  .light-mode .p-4,
-  .light-mode .p-6,
-  .light-mode .p-8 {
+  .p-4, .p-6, .p-8 {
     padding: 0.875rem !important;
   }
 
   /* Better list rows for touch */
-  .light-mode .divide-y > div {
+  .divide-y > div {
     padding-top: 0.75rem !important;
     padding-bottom: 0.75rem !important;
   }
 
   /* Make stat cards stack nicer */
-  .light-mode .grid-cols-1.sm\:grid-cols-3 {
+  .grid-cols-1.sm\\:grid-cols-3 {
     gap: 0.5rem !important;
   }
 
   /* Improve action buttons on mobile */
-  .light-mode .flex.flex-wrap.items-center.gap-2\.5 {
+  .flex.flex-wrap.items-center.gap-2\\.5 {
     gap: 0.5rem !important;
   }
 
-  .light-mode button {
+  button {
     min-height: 36px;
   }
 }
