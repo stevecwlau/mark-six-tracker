@@ -345,7 +345,7 @@ export default function BetVaultTab({
     <div className="relative">
       {!isLoggedIn && (
         <div className="absolute inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 ${settings.theme === "dark" ? "bg-black/50" : "bg-black/20"}" />
+          <div className={`absolute inset-0 ${settings.theme === "dark" ? "bg-black/50" : "bg-black/20"}`} />
           <div className={`relative z-10 w-full max-w-md mx-4 p-8 rounded-3xl border shadow-2xl ${settings.theme === "dark" ? "bg-[#111114] border-[#222226]" : "bg-white border-gray-200"}`}>
             <div className="text-center mb-6">
               <div className="mx-auto w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center mb-4">
@@ -463,7 +463,7 @@ export default function BetVaultTab({
         </div>
       )}
 
-      <div className={`space-y-6 transition-all ${!isLoggedIn ? "blur-[2px] pointer-events-none select-none" : ""}`}>
+      <div className={`space-y-6 transition-all ${!isLoggedIn ? "blur-[2px] pointer-events-none select-none rounded-3xl" : ""}`}>
 
       {/* Lifetime Performance metrics deck */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
