@@ -324,13 +324,13 @@ function App() {
         <header className={`flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 border-b pb-4 md:pb-6 ${settings.theme === 'dark' ? 'border-[#222226]' : 'border-gray-250 pb-6'}`}>
           {/* Left: Logo + Title */}
           <div className="flex items-center space-x-4 select-none">
-            <img src="/logo.png" alt="Mark Six Hunter Logo" className="w-10 h-10 rounded-lg object-contain" />
+            <img src="/logo.png" alt="Mark Six Hunter Logo" className="w-12 h-12 rounded-xl object-contain" />
             <div>
-              <h1 className="text-lg font-bold leading-tight uppercase tracking-wider">
+              <h1 className="text-xl font-bold leading-tight uppercase tracking-wider">
                 <span>{currentLanguage.title}</span>
-                <span className="text-[10px] bg-[#10B981]/10 text-[#10B981] px-2 py-0.5 rounded ml-2 font-bold tracking-wider uppercase border border-[#10B981]/25">BETA</span>
+                <span className="text-xs bg-[#10B981]/10 text-[#10B981] px-2 py-0.5 rounded ml-2 font-bold tracking-wider uppercase border border-[#10B981]/25">BETA</span>
               </h1>
-              <p className="text-[10px] text-gray-500 font-semibold tracking-wider">{settings.language === 'en' ? 'Your Mark Six Tracking Companion' : '你的六合彩追蹤拍檔'}</p>
+              <p className="text-xs text-gray-500 font-semibold tracking-wider">{settings.language === 'en' ? 'Your Mark Six Tracking Companion' : '你的六合彩追蹤拍檔'}</p>
             </div>
           </div>
 
@@ -407,7 +407,7 @@ function App() {
                   {currentUser?.user_metadata?.username || currentUser?.email?.split('@')[0] || 'Guest'}
                 </span>
                 {!currentUser && (
-                  <span className="text-[10px] text-gray-500">Not signed in</span>
+                  <span className="text-xs text-gray-500">Not signed in</span>
                 )}
               </div>
               {currentUser && (
@@ -505,7 +505,7 @@ function App() {
             >
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h3 className="text-lg font-bold">Account Settings</h3>
+                  <h3 className="text-xl font-bold">Account Settings</h3>
                   <p className="text-xs text-gray-500 mt-0.5">Manage your profile and security</p>
                 </div>
                 <button onClick={() => setShowAccountModal(false)} className="p-2 hover:bg-gray-800/60 rounded-xl transition-colors">
