@@ -344,11 +344,11 @@ export default function BetVaultTab({
   return (
     <div className={`relative ${!isLoggedIn ? "rounded-3xl overflow-hidden" : ""}`}>
       {!isLoggedIn && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center">
+        <div className="absolute inset-0 z-50 flex items-start justify-center pt-8">
           <div className={`absolute inset-0 ${settings.theme === "dark" ? "bg-black/50" : "bg-black/20"}`} />
           <div className={`relative z-10 w-full max-w-md mx-4 p-8 rounded-3xl border shadow-2xl max-h-[90vh] overflow-y-auto ${settings.theme === "dark" ? "bg-[#111114] border-[#222226]" : "bg-white border-gray-200"}`}>
             <div className="text-center mb-6">
-              <div className="mx-auto w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center mb-4">
+              <div className="mx-auto w-12 h-12 rounded-2xl bg-rose-500/10 flex items-start justify-center pt-8 mb-4">
                 <AlertCircle className="w-6 h-6 text-rose-400" />
               </div>
               <h3 className="text-xl font-black tracking-tight">Login required to use the Bet Vault</h3>
@@ -679,7 +679,7 @@ export default function BetVaultTab({
                       playSound('click', soundEffects);
                       setIsPartial(false);
                     }}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3.5 text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer ${
+                    className={`flex-1 flex items-start justify-center pt-8 gap-1.5 py-1.5 px-3.5 text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer ${
                       !isPartial 
                         ? 'bg-blue-500/10 border border-blue-500/20 text-blue-400 font-extrabold shadow-sm' 
                         : 'text-gray-400 hover:text-gray-200 bg-transparent border-transparent'
@@ -694,7 +694,7 @@ export default function BetVaultTab({
                       playSound('click', soundEffects);
                       setIsPartial(true);
                     }}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3.5 text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer ${
+                    className={`flex-1 flex items-start justify-center pt-8 gap-1.5 py-1.5 px-3.5 text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer ${
                       isPartial 
                         ? 'bg-orange-500/10 border border-orange-500/20 text-orange-400 font-extrabold shadow-sm' 
                         : 'text-gray-400 hover:text-gray-200 bg-transparent border-transparent'
@@ -789,7 +789,7 @@ export default function BetVaultTab({
                   <button
                     key={num}
                     onClick={() => toggleNumberSelection(num)}
-                    className={`w-9 h-9 md:w-10 md:h-10 text-xs font-bold rounded-full border flex items-center justify-center transition-all cursor-pointer ${btnStyle}`}
+                    className={`w-9 h-9 md:w-10 md:h-10 text-xs font-bold rounded-full border flex items-start justify-center pt-8 transition-all cursor-pointer ${btnStyle}`}
                   >
                     {num}
                   </button>
@@ -843,7 +843,7 @@ export default function BetVaultTab({
               <div className="flex flex-wrap gap-3">
                 {bankers.map(num => (
                   <div key={num} className="flex items-center gap-1.5 bg-yellow-500/10 border border-yellow-500/20 px-2 py-1 rounded-lg">
-                    <span className="w-5 h-5 flex items-center justify-center rounded-full bg-yellow-500 text-black text-[10px] font-bold font-black">{num}</span>
+                    <span className="w-5 h-5 flex items-start justify-center pt-8 rounded-full bg-yellow-500 text-black text-[10px] font-bold font-black">{num}</span>
                     <button onClick={() => demoteToLeg(num)} className="text-[10px] font-semibold text-gray-400 hover:text-white uppercase transition-colors">
                       Demote to Leg
                     </button>
@@ -851,7 +851,7 @@ export default function BetVaultTab({
                 ))}
                 {legs.map(num => (
                   <div key={num} className="flex items-center gap-1.5 bg-gray-900 border border-gray-800 px-2 py-1 rounded-lg">
-                    <span className={`w-5 h-5 flex items-center justify-center rounded-full text-white text-[10px] font-bold ${getBallBgColor(num)}`}>{num}</span>
+                    <span className={`w-5 h-5 flex items-start justify-center pt-8 rounded-full text-white text-[10px] font-bold ${getBallBgColor(num)}`}>{num}</span>
                     <button onClick={() => promoteToBanker(num)} className="text-[10px] font-semibold text-yellow-500 hover:text-yellow-400 uppercase transition-colors">
                       Set as Banker
                     </button>
@@ -879,7 +879,7 @@ export default function BetVaultTab({
 
             <button
               onClick={handleManualAddSubmit}
-              className="flex items-center justify-center gap-1.5 text-xs font-bold text-gray-900 bg-emerald-400 hover:bg-emerald-300 px-5 py-2.5 rounded-xl transition-all cursor-pointer"
+              className="flex items-start justify-center pt-8 gap-1.5 text-xs font-bold text-gray-900 bg-emerald-400 hover:bg-emerald-300 px-5 py-2.5 rounded-xl transition-all cursor-pointer"
             >
               <Check className="w-4 h-4 stroke-[2.5]" />
               <span>{t.importer.generateBtn}</span>
@@ -949,14 +949,14 @@ export default function BetVaultTab({
                           <div className="flex flex-wrap items-center gap-1 max-w-lg select-none">
                             <span className="text-[10px] text-yellow-500 font-bold mr-1">{t.vault.table.bankerLead}</span>
                             {bet.bankers?.map(v => (
-                              <span key={v} className="w-5.5 h-5.5 rounded-full bg-yellow-500 text-black text-[9px] font-black flex items-center justify-center shadow">
+                              <span key={v} className="w-5.5 h-5.5 rounded-full bg-yellow-500 text-black text-[9px] font-black flex items-start justify-center pt-8 shadow">
                                 {v}
                               </span>
                             ))}
                             <span className="text-[10px] text-gray-550 font-bold mx-1">/</span>
                             <span className="text-[10px] text-gray-400 font-bold mr-1">{t.vault.table.legsLead}</span>
                             {bet.legs?.map(v => (
-                              <span key={v} className={`w-5.5 h-5.5 rounded-full text-white text-[9px] font-bold flex items-center justify-center shadow ${getBallBgColor(v)}`}>
+                              <span key={v} className={`w-5.5 h-5.5 rounded-full text-white text-[9px] font-bold flex items-start justify-center pt-8 shadow ${getBallBgColor(v)}`}>
                                 {v}
                               </span>
                             ))}
@@ -970,7 +970,7 @@ export default function BetVaultTab({
                                 return null;
                               }
                               return (
-                                <span key={v} className={`w-5.5 h-5.5 rounded-full text-[9px] text-white font-bold flex items-center justify-center shadow ${getBallBgColor(v)}`}>
+                                <span key={v} className={`w-5.5 h-5.5 rounded-full text-[9px] text-white font-bold flex items-start justify-center pt-8 shadow ${getBallBgColor(v)}`}>
                                   {v}
                                 </span>
                               );
