@@ -187,9 +187,9 @@ nav button {
    ============================================ */
 
 /* Make filter bar elements consistent in size */
-.light-mode .relative input,
-.light-mode button[aria-label*="Bets"],
-.light-mode input[type="date"] {
+.relative input,
+button[aria-label*="Bets"],
+input[type="date"] {
   height: 42px !important;
   font-size: 13px !important;
   padding-top: 8px !important;
@@ -197,19 +197,19 @@ nav button {
 }
 
 /* Consistent search input */
-.light-mode .relative input {
+.relative input {
   padding-left: 2.25rem !important;
 }
 
 /* Consistent toggle button */
-.light-mode button.flex.items-center.justify-between {
+button.flex.items-center.justify-between {
   padding-left: 1rem !important;
   padding-right: 1rem !important;
   font-size: 13px !important;
 }
 
 /* Consistent date input */
-.light-mode input[type="date"] {
+input[type="date"] {
   padding-left: 2.5rem !important;
   padding-right: 0.75rem !important;
 }
