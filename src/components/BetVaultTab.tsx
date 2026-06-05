@@ -346,12 +346,12 @@ export default function BetVaultTab({
       {!isLoggedIn && (
         <div className="absolute inset-0 z-50 flex items-start justify-center pt-8">
           <div className={`absolute inset-0 ${settings.theme === "dark" ? "bg-black/50" : "bg-black/20"}`} />
-          <div className={`relative z-10 w-full max-w-md mx-4 p-8 rounded-3xl border shadow-2xl max-h-[90vh] overflow-y-auto ${settings.theme === "dark" ? "bg-[#111114] border-[#222226]" : "bg-white border-gray-200"}`}>
+          <div className={`relative z-10 w-full max-w-md mx-4 p-6 rounded-3xl border shadow-2xl max-h-[90vh] overflow-y-auto ${settings.theme === "dark" ? "bg-[#111114] border-[#222226]" : "bg-white border-gray-200"}`}>
             <div className="text-center mb-6">
-              <div className="mx-auto w-12 h-12 rounded-2xl bg-rose-500/10 flex items-start justify-center pt-8 mb-4">
-                <AlertCircle className="w-6 h-6 text-rose-400" />
+              <div className="mx-auto w-10 h-10 rounded-2xl bg-rose-500/10 flex items-start justify-center pt-8 mb-4">
+                <AlertCircle className="w-5 h-5 text-rose-400" />
               </div>
-              <h3 className="text-xl font-black tracking-tight">Login required to use the Bet Vault</h3>
+              <h3 className="text-lg font-black tracking-tight">Login required to use the Bet Vault</h3>
               <p className="text-sm text-gray-400 mt-2">Please sign in or create an account.</p>
             </div>
 
