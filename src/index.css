@@ -26,22 +26,24 @@
   border-bottom: 2px solid #10B981;
   color: #10B981 !important;
 }
+
 /* ============================================
-   LIGHT MODE — Clean, premium, high-contrast
+   LIGHT MODE — mhnow.me inspired clean theme
    ============================================ */
 :root.light-mode {
   color-scheme: light;
 }
 
 .light-mode {
-  --bg-primary: #f8fafc;
+  --bg-primary: #f8f9fb;
   --bg-secondary: #ffffff;
   --bg-tertiary: #f1f5f9;
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
+  --text-primary: #1e2937;
+  --text-secondary: #475569;
   --text-muted: #64748b;
   --border: #e2e8f0;
   --accent: #10b981;
+  --accent-hover: #059669;
 }
 
 .light-mode body {
@@ -63,17 +65,17 @@
   background-color: var(--bg-secondary) !important;
   border-color: var(--border) !important;
   color: var(--text-primary) !important;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
 }
 
-/* Glass panels in light mode */
+/* Glass panels */
 .light-mode .glass-panel {
   background: var(--bg-secondary) !important;
   border: 1px solid var(--border) !important;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
 }
 
-/* Text colors */
+/* Text */
 .light-mode .text-gray-100,
 .light-mode .text-gray-200,
 .light-mode .text-white {
@@ -99,7 +101,7 @@
   border-color: var(--border) !important;
 }
 
-/* Inputs & selects */
+/* Inputs */
 .light-mode input,
 .light-mode select,
 .light-mode textarea {
@@ -108,17 +110,17 @@
   color: var(--text-primary) !important;
 }
 
-/* Table styling */
+/* Tables */
 .light-mode .divide-gray-850\/50 > tr {
   border-color: var(--border) !important;
 }
 
-/* Buttons and interactive elements */
+/* Interactive */
 .light-mode .bg-white\/5 {
   background-color: var(--bg-tertiary) !important;
   border-color: var(--border) !important;
 }
 
 .light-mode .hover\:bg-white\/10:hover {
-  background-color: #e2e8f0 !important;
+  background-color: #e0e7ff !important;
 }
