@@ -227,3 +227,35 @@
     min-height: 36px;
   }
 }
+
+
+/* ============================================
+   GLOBAL SCALE +30%
+   ============================================ */
+
+.light-mode body {
+  font-size: 19.5px; /* 15px * 1.3 */
+}
+
+/* Increase card padding by ~30% */
+.light-mode .p-4 { padding: 1.3rem !important; }
+.light-mode .p-6 { padding: 1.625rem !important; }
+.light-mode .p-8 { padding: 2.1rem !important; }
+
+/* Increase list row spacing */
+.light-mode .divide-y > div {
+  padding-top: 0.85rem !important;
+  padding-bottom: 0.85rem !important;
+}
+
+/* Increase section gaps */
+.light-mode .space-y-6 > * + * { margin-top: 1.625rem !important; }
+.light-mode .space-y-8 > * + * { margin-top: 2rem !important; }
+
+/* Slightly larger buttons and tabs */
+.light-mode button,
+.light-mode nav button {
+  padding-top: 0.65rem !important;
+  padding-bottom: 0.65rem !important;
+  font-size: 0.95rem !important;
+}
