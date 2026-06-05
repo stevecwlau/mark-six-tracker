@@ -342,7 +342,7 @@ export default function BetVaultTab({
   const lifetimeROI = lifetimeCost > 0 ? ((lifetimeWinnings - lifetimeCost) / lifetimeCost) * 100 : 0;
 
   return (
-    <div className="relative">
+    <div className={`relative ${!isLoggedIn ? "rounded-3xl overflow-hidden" : ""}`}>
       {!isLoggedIn && (
         <div className="absolute inset-0 z-50 flex items-center justify-center">
           <div className={`absolute inset-0 ${settings.theme === "dark" ? "bg-black/50" : "bg-black/20"}`} />
