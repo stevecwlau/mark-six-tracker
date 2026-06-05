@@ -345,7 +345,6 @@ export default function BetVaultTab({
     <div className={`relative ${!isLoggedIn ? "rounded-3xl overflow-hidden" : ""}`}>
       {!isLoggedIn && (
         <div className="absolute inset-0 z-50 flex items-center justify-center">
-          /* backdrop removed - using only blur on content */ 
           <div className={`relative z-10 w-full max-w-md mx-4 p-[18px] rounded-3xl border shadow-2xl max-h-[90vh] overflow-y-auto ${settings.theme === "dark" ? "bg-[#111114] border-[#222226]" : "bg-white border-gray-200"}`}>
             <div className="text-center mb-4">
               <div className="mx-auto w-9 h-9 rounded-2xl bg-rose-500/10 flex items-center justify-center mb-4">
