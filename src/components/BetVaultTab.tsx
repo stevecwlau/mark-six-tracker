@@ -25,23 +25,28 @@ interface BetVaultTabProps {
 
 // Get the next upcoming Mark Six draw (Tue/Thu/Sat)
 // Generate next upcoming draw based on the latest scraped draw
-function getNextUpcomingDraw(latestDraw: any): { id: string; date: string } {
-  if (!latestDraw) {
+function getNextUpcomingDraw(historicalDraws: any[]): { id: string; date: string } {
+  if (!Array.isArray(historicalDraws) || historicalDraws.length === 0) {
     return { id: "26/060", date: "2026-06-04" };
   }
 
-  // Get next deadline from scraped data (Cut-off Time)
-  const nextDate = latestDraw.nextDeadline 
-    ? latestDraw.nextDeadline.split(" ")[0] 
-    : latestDraw.date;
+  const latestDraw = historicalDraws[0];
+  if (!latestDraw || !latestDraw.id) {
+    return { id: "26/060", date: "2026-06-04" };
+  }
 
-  // Generate next draw ID
+  // Generate next draw ID by incrementing
   const latestId = latestDraw.id; // e.g. "26/059"
   const parts = latestId.split("/");
   const prefix = parts[0]; // "26"
   const num = parseInt(parts[1], 10);
   const nextNum = (num + 1).toString().padStart(3, "0");
   const nextId = `${prefix}/${nextNum}`;
+
+  // Use nextDeadline if available, otherwise fallback
+  const nextDate = latestDraw.nextDeadline 
+    ? latestDraw.nextDeadline.split(" ")[0] 
+    : latestDraw.date;
 
   return {
     id: nextId,
@@ -134,7 +139,7 @@ export default function BetVaultTab({
   const [isConfirmingClear, setIsConfirmingClear] = useState(false);
 
   // Manual placement state
-  const [targetDate, setTargetDate] = useState(() => getNextUpcomingDraw(historicalDraws[0]).date);
+  const [targetDate, setTargetDate] = useState(() => getNextUpcomingDraw(historicalDraws).date);
   const [betType, setBetType] = useState<'single' | 'multiple' | 'banker'>('single');
   const [isPartial, setIsPartial] = useState(false);
   const [multipleBallCount, setMultipleBallCount] = useState<number>(8);
@@ -620,8 +625,8 @@ export default function BetVaultTab({
                 onChange={(e) => setTargetDate(e.target.value)}
                 className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs font-medium text-gray-200 focus:outline-none focus:border-emerald-400"
               >
-                <option value={getNextUpcomingDraw().date}>
-                  {getNextUpcomingDraw().id} ({getNextUpcomingDraw().date}) — Next Draw
+                <option value={getNextUpcomingDraw(historicalDraws).date}>
+                  {getNextUpcomingDraw(historicalDraws).id} ({getNextUpcomingDraw(historicalDraws).date}) — Next Draw
                 </option>
                 {historicalDraws.map(d => (
                   <option key={d.date} value={d.date}>
