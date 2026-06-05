@@ -213,3 +213,14 @@ nav button {
   padding-left: 2.5rem !important;
   padding-right: 0.75rem !important;
 }
+
+
+/* Make filter bar consistent in dark mode */
+.dark-mode .relative input,
+.dark-mode button[aria-label*="Bets"],
+.dark-mode input[type="date"] {
+  height: 42px !important;
+  font-size: 13px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
