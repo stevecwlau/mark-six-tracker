@@ -38,7 +38,7 @@ export default function DrawHistoryTab({ historicalDraws, userBets, settings }: 
       return (
         <span
           key={num}
-          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full text-white text-[10px] sm:text-xs font-black flex items-center justify-center shadow-md relative shrink-0 ${getBallBgColor(num)}`}
+          className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full text-white text-[10px] sm:text-xs font-black flex items-center justify-center shadow-md relative shrink-0 ${getBallBgColor(num)}`}
           title={`Matched Regular: ${num}`}
         >
           {num}
@@ -50,7 +50,7 @@ export default function DrawHistoryTab({ historicalDraws, userBets, settings }: 
       return (
         <span
           key={num}
-          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full text-white text-[10px] sm:text-xs font-black flex items-center justify-center shadow-md relative shrink-0 ring-2 ring-amber-400 ring-offset-1 ${settings.theme === 'dark' ? 'ring-offset-gray-950' : 'ring-offset-white'} ${getBallBgColor(num)}`}
+          className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full text-white text-[10px] sm:text-xs font-black flex items-center justify-center shadow-md relative shrink-0 ring-2 ring-amber-400 ring-offset-1 ${settings.theme === 'dark' ? 'ring-offset-gray-950' : 'ring-offset-white'} ${getBallBgColor(num)}`}
           title={`Matched Special: ${num}`}
         >
           {num}
@@ -61,7 +61,7 @@ export default function DrawHistoryTab({ historicalDraws, userBets, settings }: 
     return (
       <span
         key={num}
-        className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border flex items-center justify-center text-[10px] sm:text-xs font-semibold select-none shrink-0 ${
+        className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full border flex items-center justify-center text-[10px] sm:text-xs font-semibold select-none shrink-0 ${
           settings.theme === 'dark'
             ? 'bg-gray-900/30 border-gray-800 text-gray-600'
             : 'bg-gray-50 border-gray-200 text-gray-400'
@@ -229,14 +229,14 @@ export default function DrawHistoryTab({ historicalDraws, userBets, settings }: 
                     {draw.numbers.map((v, idx) => (
                       <span
                         key={idx}
-                        className={`w-6 h-6 rounded-full text-[10px] text-white font-bold flex items-center justify-center ${getBallBgColor(v)}`}
+                        className={`w-7 h-7 rounded-full text-[10px] text-white font-bold flex items-center justify-center ${getBallBgColor(v)}`}
                       >
                         {v}
                       </span>
                     ))}
                     <span className="text-gray-650 font-bold ml-0.5 inline-block">+</span>
                     <span
-                      className={`w-6 h-6 rounded-full text-[10px] text-white font-black flex items-center justify-center ${getBallBgColor(draw.extraNumber ?? draw.extra)}`}
+                      className={`w-7 h-7 rounded-full text-[10px] text-white font-black flex items-center justify-center ${getBallBgColor(draw.extraNumber ?? draw.extra)}`}
                     >
                       {draw.extraNumber ?? draw.extra}
                     </span>
