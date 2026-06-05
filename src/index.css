@@ -145,3 +145,16 @@
 .light-mode .from-emerald-50 {
   background-color: #fdfaf3 !important;
 }
+
+
+/* Warm grainy background matching mhnow.me */
+.light-mode body,
+.light-mode #root {
+  background-color: #f5f0e6;
+  background-image: 
+    radial-gradient(circle at 25% 30%, rgba(0,0,0,0.018) 0.5px, transparent 1px),
+    radial-gradient(circle at 75% 70%, rgba(0,0,0,0.015) 0.6px, transparent 1px),
+    radial-gradient(circle at 40% 80%, rgba(0,0,0,0.012) 0.5px, transparent 1px);
+  background-size: 3px 3px, 4px 4px, 5px 5px;
+  background-repeat: repeat;
+}
