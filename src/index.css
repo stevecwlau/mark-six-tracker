@@ -180,3 +180,36 @@ nav button {
 .light-mode .border-gray-300 {
   border-color: #cbd5e1 !important;
 }
+
+
+/* ============================================
+   CONSISTENT BOX & FONT SIZE (Light Mode)
+   ============================================ */
+
+/* Make filter bar elements consistent in size */
+.light-mode .relative input,
+.light-mode button[aria-label*="Bets"],
+.light-mode input[type="date"] {
+  height: 42px !important;
+  font-size: 13px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+/* Consistent search input */
+.light-mode .relative input {
+  padding-left: 2.25rem !important;
+}
+
+/* Consistent toggle button */
+.light-mode button.flex.items-center.justify-between {
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+  font-size: 13px !important;
+}
+
+/* Consistent date input */
+.light-mode input[type="date"] {
+  padding-left: 2.5rem !important;
+  padding-right: 0.75rem !important;
+}
