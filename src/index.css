@@ -26,24 +26,30 @@
   border-bottom: 2px solid #10B981;
   color: #10B981 !important;
 }
-
-/* Custom Light Theme Rules overrides for elegant dual-theme experiences */
+/* ============================================
+   LIGHT MODE — Clean, premium, high-contrast
+   ============================================ */
 :root.light-mode {
-  --theme-bg: #f8f9fa;
-  --theme-text: #1a1e21;
+  color-scheme: light;
+}
+
+.light-mode {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --accent: #10b981;
 }
 
 .light-mode body {
-  background-color: #f8f9fa !important;
-  color: #1a1e21 !important;
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
 }
 
-.light-mode .bg-gradient-to-b {
-  background: #ffffff !important;
-  border-color: #e5e7eb !important;
-  box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05) !important;
-}
-
+/* Main containers & cards */
 .light-mode .bg-gray-900\/60,
 .light-mode .bg-gray-900\/40,
 .light-mode .bg-gray-900\/55,
@@ -51,77 +57,68 @@
 .light-mode .bg-gray-950,
 .light-mode .bg-gray-950\/40,
 .light-mode .bg-gray-950\/70,
-.light-mode .bg-gray-950\/60 {
-  background-color: #ffffff !important;
-  border-color: #e5e7eb !important;
-  color: #374151 !important;
+.light-mode .bg-gray-950\/60,
+.light-mode .bg-zinc-900,
+.light-mode .bg-zinc-950 {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
 }
 
-.light-mode .divide-gray-850\/50 > tr {
-  border-color: #f3f4f6 !important;
+/* Glass panels in light mode */
+.light-mode .glass-panel {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
 }
 
+/* Text colors */
+.light-mode .text-gray-100,
+.light-mode .text-gray-200,
+.light-mode .text-white {
+  color: var(--text-primary) !important;
+}
+
+.light-mode .text-gray-300,
+.light-mode .text-gray-400 {
+  color: var(--text-secondary) !important;
+}
+
+.light-mode .text-gray-500 {
+  color: var(--text-muted) !important;
+}
+
+/* Borders */
 .light-mode .border-gray-800,
 .light-mode .border-gray-850,
 .light-mode .border-gray-850\/50,
 .light-mode .border-gray-850\/75,
 .light-mode .border-emerald-500\/25,
 .light-mode .border-yellow-500\/50 {
-  border-color: #e5e7eb !important;
+  border-color: var(--border) !important;
 }
 
-.light-mode .text-gray-100 {
-  color: #111827 !important;
-}
-
-.light-mode .text-gray-200 {
-  color: #1f2937 !important;
-}
-
-.light-mode .text-gray-300 {
-  color: #374151 !important;
-}
-
-.light-mode .text-gray-400 {
-  color: #4b5563 !important;
-}
-
-.light-mode .text-gray-500 {
-  color: #6b7280 !important;
-}
-
-.light-mode .text-gray-550 {
-  color: #4b5563 !important;
-}
-
+/* Inputs & selects */
+.light-mode input,
 .light-mode select,
-.light-mode input[type="text"],
-.light-mode input[type="date"] {
-  background-color: #f9fafb !important;
-  border-color: #d1d5db !important;
-  color: #111827 !important;
+.light-mode textarea {
+  background-color: var(--bg-tertiary) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
 }
 
-.light-mode .bg-gray-800 {
-  background-color: #f3f4f6 !important;
-  color: #374151 !important;
+/* Table styling */
+.light-mode .divide-gray-850\/50 > tr {
+  border-color: var(--border) !important;
 }
 
-/* Custom scrollbars for pristine visual touch layouts */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* Buttons and interactive elements */
+.light-mode .bg-white\/5 {
+  background-color: var(--bg-tertiary) !important;
+  border-color: var(--border) !important;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.25);
-  border-radius: 99px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(156, 163, 175, 0.45);
+.light-mode .hover\:bg-white\/10:hover {
+  background-color: #e2e8f0 !important;
 }
