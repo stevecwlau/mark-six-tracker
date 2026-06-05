@@ -57,3 +57,43 @@ nav button {
   padding-bottom: 0.65rem !important;
   font-size: 0.95rem !important;
 }
+
+
+/* ============================================
+   LIGHT MODE INPUT & BUTTON FIXES
+   ============================================ */
+
+.light-mode input,
+.light-mode select,
+.light-mode textarea {
+  background-color: #ffffff !important;
+  border-color: #d1d5db !important;
+  color: #111827 !important;
+}
+
+.light-mode input::placeholder {
+  color: #9ca3af !important;
+}
+
+/* Fix dark filter buttons and toggles in light mode */
+.light-mode .bg-gray-950,
+.light-mode .bg-gray-950\/60 {
+  background-color: #f3f4f6 !important;
+  color: #374151 !important;
+  border-color: #d1d5db !important;
+}
+
+.light-mode .text-gray-100 {
+  color: #111827 !important;
+}
+
+.light-mode .text-gray-400 {
+  color: #6b7280 !important;
+}
+
+/* Fix pagination buttons */
+.light-mode button[disabled],
+.light-mode .bg-gray-800 {
+  background-color: #e5e7eb !important;
+  color: #374151 !important;
+}

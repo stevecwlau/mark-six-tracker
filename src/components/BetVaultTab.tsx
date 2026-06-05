@@ -368,7 +368,7 @@ export default function BetVaultTab({
                   placeholder="Enter your email" 
                   value={overlayEmail} 
                   onChange={e => setOverlayEmail(e.target.value)} 
-                  className="w-full bg-[#0A0A0B] border border-[#222226] text-sm px-4 py-3 rounded-2xl" 
+                  className="w-full bg-white border border-gray-300 dark:bg-[#0A0A0B] dark:border-[#222226] text-sm px-4 py-3 rounded-2xl" 
                 />
                 {overlayError && <div className="text-rose-400 text-xs font-bold">{overlayError}</div>}
                 <button 
@@ -400,18 +400,18 @@ export default function BetVaultTab({
                     placeholder="Username" 
                     value={overlayUsername} 
                     onChange={e => setOverlayUsername(e.target.value)} 
-                    className="w-full bg-[#0A0A0B] border border-[#222226] text-sm px-4 py-3 rounded-2xl" 
+                    className="w-full bg-white border border-gray-300 dark:bg-[#0A0A0B] dark:border-[#222226] text-sm px-4 py-3 rounded-2xl" 
                   />
                 )}
-                <input type="email" placeholder="Email" value={overlayEmail} onChange={e => setOverlayEmail(e.target.value)} className="w-full bg-[#0A0A0B] border border-[#222226] text-sm px-4 py-3 rounded-2xl" />
-                <input type="password" placeholder="Password" value={overlayPassword} onChange={e => setOverlayPassword(e.target.value)} className="w-full bg-[#0A0A0B] border border-[#222226] text-sm px-4 py-3 rounded-2xl" />
+                <input type="email" placeholder="Email" value={overlayEmail} onChange={e => setOverlayEmail(e.target.value)} className="w-full bg-white border border-gray-300 dark:bg-[#0A0A0B] dark:border-[#222226] text-sm px-4 py-3 rounded-2xl" />
+                <input type="password" placeholder="Password" value={overlayPassword} onChange={e => setOverlayPassword(e.target.value)} className="w-full bg-white border border-gray-300 dark:bg-[#0A0A0B] dark:border-[#222226] text-sm px-4 py-3 rounded-2xl" />
                 {overlayMode === "signup" && (
                   <input 
                     type="password" 
                     placeholder="Confirm Password" 
                     value={overlayConfirmPassword} 
                     onChange={e => setOverlayConfirmPassword(e.target.value)} 
-                    className="w-full bg-[#0A0A0B] border border-[#222226] text-sm px-4 py-3 rounded-2xl" 
+                    className="w-full bg-white border border-gray-300 dark:bg-[#0A0A0B] dark:border-[#222226] text-sm px-4 py-3 rounded-2xl" 
                   />
                 )}
 
