@@ -97,3 +97,31 @@ nav button {
   background-color: #e5e7eb !important;
   color: #374151 !important;
 }
+
+
+/* Fix pagination buttons in light mode */
+.light-mode .bg-gray-900\/60 {
+  background-color: #f3f4f6 !important;
+  border-color: #d1d5db !important;
+  color: #374151 !important;
+}
+
+.light-mode .bg-gray-900\/60:hover {
+  background-color: #e5e7eb !important;
+}
+
+/* Fix sound toggle button */
+.light-mode .bg-gray-950\/40 {
+  background-color: #f3f4f6 !important;
+  border-color: #d1d5db !important;
+  color: #6b7280 !important;
+}
+
+.light-mode .bg-gray-950\/40:hover {
+  color: #10b981 !important;
+}
+
+/* Fix page indicator text */
+.light-mode .text-gray-400 {
+  color: #6b7280 !important;
+}
