@@ -124,3 +124,24 @@
 .light-mode .hover\:bg-white\/10:hover {
   background-color: #e0e7ff !important;
 }
+
+
+/* Light mode - warm mhnow.me style */
+.light-mode body,
+.light-mode #root,
+.light-mode .min-h-screen {
+  background-color: #f5f0e6 !important;
+}
+
+.light-mode .bg-white,
+.light-mode .bg-gray-50,
+.light-mode .bg-slate-50,
+.light-mode [class*="bg-white"] {
+  background-color: #fdfaf3 !important;
+}
+
+/* Soften the green-tinted card */
+.light-mode .bg-emerald-50,
+.light-mode .from-emerald-50 {
+  background-color: #fdfaf3 !important;
+}
