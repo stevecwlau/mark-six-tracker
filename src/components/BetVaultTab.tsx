@@ -346,19 +346,19 @@ export default function BetVaultTab({
       {!isLoggedIn && (
         <div className="absolute inset-0 z-50 flex items-center justify-center">
           <div className={`absolute inset-0 ${settings.theme === "dark" ? "bg-black/50" : "bg-black/20"}`} />
-          <div className={`relative z-10 w-full max-w-md mx-4 p-6 rounded-3xl border shadow-2xl max-h-[90vh] overflow-y-auto ${settings.theme === "dark" ? "bg-[#111114] border-[#222226]" : "bg-white border-gray-200"}`}>
+          <div className={`relative z-10 w-full max-w-md mx-4 p-5 rounded-3xl border shadow-2xl max-h-[90vh] overflow-y-auto ${settings.theme === "dark" ? "bg-[#111114] border-[#222226]" : "bg-white border-gray-200"}`}>
             <div className="text-center mb-6">
-              <div className="mx-auto w-10 h-10 rounded-2xl bg-rose-500/10 flex items-center justify-center mb-4">
-                <AlertCircle className="w-5 h-5 text-rose-400" />
+              <div className="mx-auto w-9 h-9 rounded-2xl bg-rose-500/10 flex items-center justify-center mb-4">
+                <AlertCircle className="w-4 h-4 text-rose-400" />
               </div>
-              <h3 className="text-lg font-black tracking-tight">Login required to use the Bet Vault</h3>
+              <h3 className="text-base font-black tracking-tight">Login required to use the Bet Vault</h3>
               <p className="text-sm text-gray-400 mt-2">Please sign in or create an account.</p>
             </div>
 
             {overlayMode === "choice" ? (
               <div className="space-y-3">
-                <button onClick={() => { setOverlayMode("login"); setOverlayError(""); }} className="w-full py-3.5 text-sm font-bold bg-[#10B981] hover:bg-[#10B981]/90 text-black rounded-2xl transition-all">LOGIN</button>
-                <button onClick={() => { setOverlayMode("signup"); setOverlayError(""); }} className="w-full py-3.5 text-sm font-bold border border-white/20 hover:bg-white/5 rounded-2xl transition-all">SIGN UP</button>
+                <button onClick={() => { setOverlayMode("login"); setOverlayError(""); }} className="w-full py-2.5 text-sm font-bold bg-[#10B981] hover:bg-[#10B981]/90 text-black rounded-2xl transition-all">LOGIN</button>
+                <button onClick={() => { setOverlayMode("signup"); setOverlayError(""); }} className="w-full py-2.5 text-sm font-bold border border-white/20 hover:bg-white/5 rounded-2xl transition-all">SIGN UP</button>
               </div>
             ) : overlayMode === "forgot" ? (
               <div className="space-y-4">
@@ -368,7 +368,7 @@ export default function BetVaultTab({
                   placeholder="Enter your email" 
                   value={overlayEmail} 
                   onChange={e => setOverlayEmail(e.target.value)} 
-                  className="w-full bg-white border border-gray-300 dark:bg-[#0A0A0B] dark:border-[#222226] text-sm px-4 py-3 rounded-2xl" 
+                  className="w-full bg-white border border-gray-300 dark:bg-[#0A0A0B] dark:border-[#222226] text-sm px-3 py-2.5 rounded-xl text-sm" 
                 />
                 {overlayError && <div className="text-rose-400 text-xs font-bold">{overlayError}</div>}
                 <button 
@@ -382,7 +382,7 @@ export default function BetVaultTab({
                       setOverlayError(err?.message || "Failed to send reset email");
                     }
                   }} 
-                  className="w-full py-3.5 text-sm font-bold bg-[#10B981] hover:bg-[#10B981]/90 text-black rounded-2xl mt-2"
+                  className="w-full py-2.5 text-sm font-bold bg-[#10B981] hover:bg-[#10B981]/90 text-black rounded-2xl mt-2"
                 >
                   SEND RESET LINK
                 </button>
@@ -400,18 +400,18 @@ export default function BetVaultTab({
                     placeholder="Username" 
                     value={overlayUsername} 
                     onChange={e => setOverlayUsername(e.target.value)} 
-                    className="w-full bg-white border border-gray-300 dark:bg-[#0A0A0B] dark:border-[#222226] text-sm px-4 py-3 rounded-2xl" 
+                    className="w-full bg-white border border-gray-300 dark:bg-[#0A0A0B] dark:border-[#222226] text-sm px-3 py-2.5 rounded-xl text-sm" 
                   />
                 )}
-                <input type="email" placeholder="Email" value={overlayEmail} onChange={e => setOverlayEmail(e.target.value)} className="w-full bg-white border border-gray-300 dark:bg-[#0A0A0B] dark:border-[#222226] text-sm px-4 py-3 rounded-2xl" />
-                <input type="password" placeholder="Password" value={overlayPassword} onChange={e => setOverlayPassword(e.target.value)} className="w-full bg-white border border-gray-300 dark:bg-[#0A0A0B] dark:border-[#222226] text-sm px-4 py-3 rounded-2xl" />
+                <input type="email" placeholder="Email" value={overlayEmail} onChange={e => setOverlayEmail(e.target.value)} className="w-full bg-white border border-gray-300 dark:bg-[#0A0A0B] dark:border-[#222226] text-sm px-3 py-2.5 rounded-xl text-sm" />
+                <input type="password" placeholder="Password" value={overlayPassword} onChange={e => setOverlayPassword(e.target.value)} className="w-full bg-white border border-gray-300 dark:bg-[#0A0A0B] dark:border-[#222226] text-sm px-3 py-2.5 rounded-xl text-sm" />
                 {overlayMode === "signup" && (
                   <input 
                     type="password" 
                     placeholder="Confirm Password" 
                     value={overlayConfirmPassword} 
                     onChange={e => setOverlayConfirmPassword(e.target.value)} 
-                    className="w-full bg-white border border-gray-300 dark:bg-[#0A0A0B] dark:border-[#222226] text-sm px-4 py-3 rounded-2xl" 
+                    className="w-full bg-white border border-gray-300 dark:bg-[#0A0A0B] dark:border-[#222226] text-sm px-3 py-2.5 rounded-xl text-sm" 
                   />
                 )}
 
@@ -448,7 +448,7 @@ export default function BetVaultTab({
                     const friendlyMessage = getFriendlyError(err, overlayMode);
                     setOverlayError(friendlyMessage);
                   }
-                }} className="w-full py-3.5 text-sm font-bold bg-[#10B981] hover:bg-[#10B981]/90 text-black rounded-2xl mt-2">{overlayMode === "signup" ? "Signup" : "LOGIN"}</button>
+                }} className="w-full py-2.5 text-sm font-bold bg-[#10B981] hover:bg-[#10B981]/90 text-black rounded-2xl mt-2">{overlayMode === "signup" ? "Signup" : "LOGIN"}</button>
                 {overlayMode === "login" ? (
                   <div className="flex justify-between text-xs pt-1">
                     <button onClick={() => { setOverlayMode("signup"); setOverlayError(""); }} className="text-[#10B981] hover:underline">Not a member? Signup now</button>
@@ -501,7 +501,7 @@ export default function BetVaultTab({
       <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border rounded-2xl ${settings.theme === 'dark' ? 'glass-panel' : 'bg-white border-gray-200 shadow-sm'}`}>
         <div>
           <h2 className="text-xl font-black flex items-center gap-2">
-            <FileText className="w-5 h-5 text-[#10B981]" />
+            <FileText className="w-4 h-4 text-[#10B981]" />
             <span>{t.vault.title}</span>
           </h2>
           <p className="text-xs text-gray-400 mt-1">{t.vault.desc}</p>
@@ -843,7 +843,7 @@ export default function BetVaultTab({
               <div className="flex flex-wrap gap-3">
                 {bankers.map(num => (
                   <div key={num} className="flex items-center gap-1.5 bg-yellow-500/10 border border-yellow-500/20 px-2 py-1 rounded-lg">
-                    <span className="w-5 h-5 flex items-center justify-center rounded-full bg-yellow-500 text-black text-[10px] font-bold font-black">{num}</span>
+                    <span className="w-4 h-4 flex items-center justify-center rounded-full bg-yellow-500 text-black text-[10px] font-bold font-black">{num}</span>
                     <button onClick={() => demoteToLeg(num)} className="text-[10px] font-semibold text-gray-400 hover:text-white uppercase transition-colors">
                       Demote to Leg
                     </button>
@@ -851,7 +851,7 @@ export default function BetVaultTab({
                 ))}
                 {legs.map(num => (
                   <div key={num} className="flex items-center gap-1.5 bg-gray-900 border border-gray-800 px-2 py-1 rounded-lg">
-                    <span className={`w-5 h-5 flex items-center justify-center rounded-full text-white text-[10px] font-bold ${getBallBgColor(num)}`}>{num}</span>
+                    <span className={`w-4 h-4 flex items-center justify-center rounded-full text-white text-[10px] font-bold ${getBallBgColor(num)}`}>{num}</span>
                     <button onClick={() => promoteToBanker(num)} className="text-[10px] font-semibold text-yellow-500 hover:text-yellow-400 uppercase transition-colors">
                       Set as Banker
                     </button>
@@ -866,7 +866,7 @@ export default function BetVaultTab({
             <div className="flex items-center space-x-4">
               <div>
                 <span className="text-[10px] text-gray-400 block font-semibold uppercase">Total Investment Cost</span>
-                <span className="text-lg font-black font-mono text-emerald-400">HK$ {currentCost}</span>
+                <span className="text-base font-black font-mono text-emerald-400">HK$ {currentCost}</span>
               </div>
             </div>
 
@@ -909,7 +909,7 @@ export default function BetVaultTab({
       {/* Bets records log view */}
       {userBets.length === 0 ? (
         <div className={`flex flex-col items-center justify-center p-14 text-center rounded-2xl border ${settings.theme === 'dark' ? 'glass-panel' : 'bg-white border-gray-200 shadow-sm'}`}>
-          <Trash2 className="w-10 h-10 text-gray-500 mb-3" />
+          <Trash2 className="w-9 h-9 text-gray-500 mb-3" />
           <h4 className="text-md font-bold">{t.vault.table.noBetsYet}</h4>
           <p className="text-xs text-gray-500 max-w-sm mt-1.5 leading-relaxed">
             {t.vault.table.hintImport}
