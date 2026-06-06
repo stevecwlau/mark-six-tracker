@@ -29,58 +29,72 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const draws: any[] = [];
 
-    // Parse latest draw
-    const latestPeriod = $('h2').first().text().match(/第\s*(\d+)\s*期/)?.[1];
-    const latestDate = $('h2').first().next().text().trim();
-    const latestNumbers = $('.numbers .number').map((i, el) => parseInt($(el).text())).get();
-    const latestExtra = parseInt($('.extra-number').text());
+    // === Latest draw ===
+    const latestPeriodText = $('p.w3-center').first().text();
+    const latestPeriodMatch = latestPeriodText.match(/第\s*(\d+)\s*期/);
+    const latestDateMatch = latestPeriodText.match(/(\d{2}\/\d{2}\/\d{4})/);
 
-    if (latestPeriod && latestNumbers.length === 6) {
-      draws.push({
-        id: latestPeriod,
-        date: latestDate,
-        numbers: latestNumbers,
-        extra_number: latestExtra,
+    if (latestPeriodMatch && latestDateMatch) {
+      const period = latestPeriodMatch[1];
+      const date = latestDateMatch[1].split('/').reverse().join('-'); // DD/MM/YYYY → YYYY-MM-DD
+
+      const numbers: number[] = [];
+      $('p.w3-center .ball').each((i, el) => {
+        const num = parseInt($(el).text());
+        if (!isNaN(num)) numbers.push(num);
       });
+
+      if (numbers.length === 7) {
+        draws.push({
+          id: period,
+          date,
+          numbers: numbers.slice(0, 6),
+          extra_number: numbers[6],
+        });
+      }
     }
 
-    // Parse historical draws from the list
-    $('.draw-list tr').each((i, row) => {
-      const cells = $(row).find('td');
-      if (cells.length >= 3) {
-        const period = $(cells[0]).text().trim().replace('第', '').replace('期', '');
-        const date = $(cells[1]).text().trim();
-        const numbersText = $(cells[2]).text().trim();
-        const extraText = $(cells[3]).text().trim();
+    // === Past 10 draws ===
+    $('.w3-ul.w3-center li').each((i, li) => {
+      const text = $(li).text();
+      const periodMatch = text.match(/第(\d+)期/);
+      const dateMatch = text.match(/(\d{2}\/\d{2}\/\d{4})/);
 
-        const numbers = numbersText.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
-        const extraNumber = parseInt(extraText);
+      if (periodMatch && dateMatch) {
+        const period = periodMatch[1];
+        const date = dateMatch[1].split('/').reverse().join('-');
 
-        if (period && numbers.length === 6) {
+        const numbers: number[] = [];
+        $(li).find('.ball').each((j, el) => {
+          const num = parseInt($(el).text());
+          if (!isNaN(num)) numbers.push(num);
+        });
+
+        if (numbers.length === 7) {
           draws.push({
             id: period,
             date,
-            numbers,
-            extra_number: extraNumber,
+            numbers: numbers.slice(0, 6),
+            extra_number: numbers[6],
           });
         }
       }
     });
 
-    // Upsert into Supabase
+    // Upsert to Supabase
     if (draws.length > 0) {
       const { error } = await supabase
         .from('draws')
         .upsert(draws, { onConflict: 'id' });
 
       if (error) {
-        console.error('Supabase upsert error:', error);
+        console.error('Supabase error:', error);
       }
     }
 
     console.log(`[Cron] Saved ${draws.length} draws to Supabase`);
 
-    res.status(200).json({ success: true, count: draws.length });
+    res.status(200).json({ success: true, count: draws.length, draws });
   } catch (error: any) {
     console.error('[Cron] Scrape failed:', error);
     res.status(500).json({ error: error.message });
