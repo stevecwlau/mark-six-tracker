@@ -103,23 +103,30 @@ function App() {
   }, []);
 
   // Fetch Draws from Server API Endpoint
-  const fetchHistoricalDraws = async (live: boolean) => {
-    try {
-      const res = await fetch(`/api/draws?live=${live}`);
-      if (res.ok) {
-        const payload = await res.json();
-        if (payload.draws && Array.isArray(payload.draws)) {
-          setHistoricalDraws(payload.draws);
-          setLatestDraw(payload.draws[0] || null);
-          if (payload.source === 'live') {
-            showToast(translations[settings.language].latestDraw.checkResults, 'success');
-          }
-        }
-      }
-    } catch (err) {
-      console.error("Retrieve historical draws fail:", err);
+const fetchHistoricalDraws = async (live: boolean) => {
+  try {
+    const { data, error } = await supabase
+      .from("draws")
+      .select("*")
+      .order("date", { ascending: false });
+
+    if (error) {
+      console.error("Supabase error:", error);
+      return;
     }
-  };
+
+    if (data && data.length > 0) {
+      setHistoricalDraws(data);
+      setLatestDraw(data[0]);
+      showToast(translations[settings.language].latestDraw.checkResults, "success");
+    } else {
+      setHistoricalDraws([]);
+      setLatestDraw(null);
+    }
+  } catch (err) {
+    console.error("Retrieve historical draws fail:", err);
+  }
+};
 
   // Reload on toggle live/simulated mode
   useEffect(() => {
