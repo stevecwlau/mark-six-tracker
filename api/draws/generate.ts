@@ -5,6 +5,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // TODO: Add your generate/simulate logic here later
-  return res.status(200).json({ message: 'Generate endpoint ready' });
+  // Placeholder - returns a fake next draw
+  return res.status(200).json({
+    message: "Simulated draw generated",
+    nextDraw: {
+      draw_date: new Date().toISOString().split('T')[0],
+      numbers: [1, 2, 3, 4, 5, 6],
+      special: 7
+    }
+  });
 }

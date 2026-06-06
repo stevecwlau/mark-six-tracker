@@ -24,6 +24,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(200).json({ draws: data || [], live: live === 'true' });
   } catch (err) {
+    console.error(err);
     return res.status(500).json({ error: 'Failed to fetch draws' });
   }
 }
