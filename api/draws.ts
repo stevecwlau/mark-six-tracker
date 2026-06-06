@@ -1,30 +1,24 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from '@supabase/supabase-js';
+import fs from 'fs';
+import path from 'path';
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL!,
-  process.env.VITE_SUPABASE_ANON_KEY!
-);
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { live } = req.query;
-
   try {
-    const { data, error } = await supabase
-      .from('bets')
-      .select('*')
-      .order('draw_date', { ascending: false })
-      .limit(50);
+    const scrapedPath = path.join(process.cwd(), 'src/data/scraped_draws.json');
+    
+    let draws = [];
+    if (fs.existsSync(scrapedPath)) {
+      draws = JSON.parse(fs.readFileSync(scrapedPath, 'utf8'));
+    }
 
-    if (error) throw error;
+    draws.sort((a: any, b: any) => b.date.localeCompare(a.date));
 
-    return res.status(200).json({ draws: data || [], live: live === 'true' });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Failed to fetch draws' });
+    res.status(200).json({ source: 'live', draws });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to retrieve draw results' });
   }
 }
