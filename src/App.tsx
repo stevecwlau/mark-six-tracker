@@ -279,18 +279,25 @@ function App() {
 
   // System full factory reset
   
-    const fetchHistoricalDraws = async (live: boolean) => {
+      const fetchHistoricalDraws = async (live: boolean) => {
     try {
-      const res = await fetch("/scraped_draws.json");
-      const data = await res.json();
+      const { data, error } = await supabase
+        .from("draws")
+        .select("*")
+        .order("date", { ascending: false });
+
+      if (error) {
+        console.error("Supabase error:", error);
+        return;
+      }
 
       if (data && data.length > 0) {
         const mappedDraws = data.map((draw: any) => ({
           ...draw,
-          extraNumber: draw.extra ?? draw.extraNumber,
-          nextDrawDate: draw.nextDrawDate,
-          nextJackpot: draw.nextJackpot,
-          nextDeadline: draw.nextDeadline,
+          extraNumber: draw.extra_number,
+          nextDrawDate: draw.next_draw_date,
+          nextJackpot: draw.next_jackpot,
+          nextDeadline: draw.next_deadline,
         }));
 
         setHistoricalDraws(mappedDraws);
@@ -301,7 +308,7 @@ function App() {
         setLatestDraw(null);
       }
     } catch (err) {
-      console.error("Failed to load draws:", err);
+      console.error("Failed to load draws from Supabase:", err);
     }
   };
 
