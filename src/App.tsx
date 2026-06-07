@@ -116,8 +116,17 @@ const fetchHistoricalDraws = async (live: boolean) => {
     }
 
     if (data && data.length > 0) {
-      setHistoricalDraws(data);
-      setLatestDraw(data[0]);
+      // Map Supabase snake_case fields to camelCase expected by frontend
+      const mapped = data.map((d: any) => ({
+        ...d,
+        extraNumber: d.extra_number,
+        nextDrawDate: d.next_draw_date,
+        nextJackpot: d.next_jackpot,
+        nextDeadline: d.next_deadline,
+      }));
+
+      setHistoricalDraws(mapped);
+      setLatestDraw(mapped[0]);
       showToast(translations[settings.language].latestDraw.checkResults, "success");
     } else {
       setHistoricalDraws([]);
