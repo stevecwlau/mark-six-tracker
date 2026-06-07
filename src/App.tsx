@@ -102,40 +102,7 @@ function App() {
     }
   }, []);
 
-  // Fetch Draws from Server API Endpoint
-  
-  try {
-    const { data, error } = await supabase
-      .from("draws")
-      .select("*")
-      .order("date", { ascending: false });
 
-    if (error) {
-      console.error("Supabase error:", error);
-      return;
-    }
-
-    if (data && data.length > 0) {
-      // Map Supabase snake_case fields to camelCase expected by frontend
-      const mapped = data.map((d: any) => ({
-        ...d,
-        extraNumber: d.extra_number,
-        nextDrawDate: d.next_draw_date,
-        nextJackpot: d.next_jackpot,
-        nextDeadline: d.next_deadline,
-      }));
-
-      setHistoricalDraws(mapped);
-      setLatestDraw(mapped[0]);
-      showToast(translations[settings.language].latestDraw.checkResults, "success");
-    } else {
-      setHistoricalDraws([]);
-      setLatestDraw(null);
-    }
-  } catch (err) {
-    console.error("Retrieve historical draws fail:", err);
-  }
-};
 
   // Reload on toggle live/simulated mode
   useEffect(() => {
