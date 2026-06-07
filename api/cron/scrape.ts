@@ -27,7 +27,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const html = await response.text();
     const $ = cheerio.load(html);
 
-    // TODO: Add proper parsing here
     const draws: any[] = [];
 
     const { error } = await supabase.from('draws').upsert(draws, { onConflict: 'id' });
