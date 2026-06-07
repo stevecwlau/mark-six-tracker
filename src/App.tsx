@@ -103,31 +103,7 @@ function App() {
   }, []);
 
   // Fetch Draws from Server API Endpoint
-  const fetchHistoricalDraws = async (live: boolean) => {
-    try {
-      const res = await fetch("/scraped_draws.json");
-      const data = await res.json();
-
-      if (data && data.length > 0) {
-        const mappedDraws = data.map((draw: any) => ({
-          ...draw,
-          extraNumber: draw.extra ?? draw.extraNumber,
-          nextDrawDate: draw.nextDrawDate,
-          nextJackpot: draw.nextJackpot,
-          nextDeadline: draw.nextDeadline,
-        }));
-
-        setHistoricalDraws(mappedDraws);
-        setLatestDraw(mappedDraws[0]);
-        showToast(translations[settings.language].latestDraw.checkResults, "success");
-      } else {
-        setHistoricalDraws([]);
-        setLatestDraw(null);
-      }
-    } catch (err) {
-      console.error("Failed to load draws:", err);
-    }
-  };
+  
   try {
     const { data, error } = await supabase
       .from("draws")
@@ -336,6 +312,32 @@ function App() {
 
   // System full factory reset
   
+    const fetchHistoricalDraws = async (live: boolean) => {
+    try {
+      const res = await fetch("/scraped_draws.json");
+      const data = await res.json();
+
+      if (data && data.length > 0) {
+        const mappedDraws = data.map((draw: any) => ({
+          ...draw,
+          extraNumber: draw.extra ?? draw.extraNumber,
+          nextDrawDate: draw.nextDrawDate,
+          nextJackpot: draw.nextJackpot,
+          nextDeadline: draw.nextDeadline,
+        }));
+
+        setHistoricalDraws(mappedDraws);
+        setLatestDraw(mappedDraws[0]);
+        showToast(translations[settings.language].latestDraw.checkResults, "success");
+      } else {
+        setHistoricalDraws([]);
+        setLatestDraw(null);
+      }
+    } catch (err) {
+      console.error("Failed to load draws:", err);
+    }
+  };
+
   const handleSimulateNextDraw = async () => {
     const res = await fetch("/api/draws/generate", { method: "POST" });
     if (res.ok) {
